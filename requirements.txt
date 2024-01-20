@@ -1,2 +1,8 @@
 jupyter
 pandas
+tensorflow==2.10
+tensorflow-text
+scikit-learn
+keras-adamw
+numpy
+transformers
