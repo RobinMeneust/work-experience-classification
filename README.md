@@ -12,13 +12,7 @@ Classify work experience from Linkedin using a few-shot learning AI model
 
 ## How to use GPU
 
-1. Install CUDA 11.2.2 at https://developer.nvidia.com/cuda-11.2.2-download-archive
-2. Install cuDNN 8.1.1 for CUDA 11.2 at https://developer.nvidia.com/rdp/cudnn-archive (move the archive content into your CUDA installation folder)
-3. If it still doesn't work:
-	- Add to your PATH env variable:
-		- C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\lib
-		- C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\include
-	- Create a new env variable named CUDNN, and set its value to C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2
+Install CUDA 12.1.1 at https://developer.nvidia.com/cuda-toolkit-archive
 
 ## Use
 
