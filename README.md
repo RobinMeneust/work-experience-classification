@@ -7,7 +7,8 @@ Classify work experience from Linkedin using a few-shot learning AI model
 2. Install virtualenv if you don't already have it: `python -m pip install virtualenv`
 3. Create a virtual environment: `python -m venv .venv`
 4. Activate this environment: `source .venv/bin/activate` (or `".venv/Scripts/activate.bat"` on Windows)
-5. Install the dependencies: `python -m pip install -r requirements.txt`
+5. Install the dependencies for PyTorch: `python -m pip install -r pytorch_requirements.txt`
+6. Install the other dependencies: `python -m pip install -r requirements.txt`
 
 
 ## How to use GPU
