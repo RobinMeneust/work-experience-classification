@@ -4,3 +4,5 @@ pyarrow
 scikit-learn
 numpy
 transformers
+matplotlib
+langdetect
