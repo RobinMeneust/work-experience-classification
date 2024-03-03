@@ -7,3 +7,4 @@ transformers
 matplotlib
 langdetect
 setfit
+torcheval
