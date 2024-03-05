@@ -8,3 +8,4 @@ matplotlib
 langdetect
 setfit
 torcheval
+optuna
