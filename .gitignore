@@ -164,4 +164,7 @@ models/
 
 # Ignore all results except some of them (to be used as examples)
 results/*/*/*
-!results/*/*/2024-03-12*
+!results/*/*/2024-03-12_15*
+!results/*/*/2024-03-12_16*
+!results/*/distance/2024-03-12_20*
+!results/*/loss/2024-03-12_20*
