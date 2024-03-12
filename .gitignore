@@ -161,4 +161,7 @@ cython_debug/
 
 data/
 models/
-results/
+
+# Ignore all results except some of them (to be used as examples)
+results/*/*/*
+!results/*/*/2024-03-12*
