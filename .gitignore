@@ -161,3 +161,6 @@ cython_debug/
 
 data/
 models/
+notebooks/datasets/
+notebooks/output/
+notebooks/parallel-sentences/
