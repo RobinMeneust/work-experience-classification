@@ -1,0 +1,1 @@
+{"results": {"all_labels": [], "likely_labels": [], "sure_labels": []}, "run_times": {"all_labels": [], "likely_labels": [], "sure_labels": []}, "params": {"n_shot": 8, "n_iter": 80, "loss": "Triplet", "model": "paraphrase-mpnet-base-v2", "training_set": ["all_labels", "likely_labels", "sure_labels"]}}
