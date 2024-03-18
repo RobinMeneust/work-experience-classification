@@ -7,13 +7,30 @@ Classify work experience from Linkedin using a few-shot learning AI model
 2. Install virtualenv if you don't already have it: `python -m pip install virtualenv`
 3. Create a virtual environment: `python -m venv .venv`
 4. Activate this environment: `source .venv/bin/activate` (or `".venv/Scripts/activate.bat"` on Windows)
-5. Install the dependencies for PyTorch: `python -m pip install -r pytorch_requirements.txt`
+5. Install the dependencies for PyTorch: `python -m pip install -r pytorch_requirements.txt` **(Warning: please read the section "How to use the GPU" before)**
 6. Install the other dependencies: `python -m pip install -r requirements.txt`
 
+## How to use the GPU
 
-## How to use GPU
+### Nvidia
 
-Install CUDA 12.1.1 at https://developer.nvidia.com/cuda-toolkit-archive
+For both Windows and Linux:
+
+1. Install CUDA 12.1.1 at https://developer.nvidia.com/cuda-toolkit-archive
+2. Go to the step 5 of the section "Install" just above
+
+### AMD
+
+For Linux only (not available on Windows):
+
+1. Install CUDA 5.7.0 Follow the instructions here: https://rocm.docs.amd.com/en/docs-5.7.0/deploy/linux/os-native/install.html
+2. Change the first line of pytorch_requirements.txt to `--index-url https://download.pytorch.org/whl/rocm5.7`
+3. Go to the step 5 of the section "Install" just above
+
+## How to use the CPU (not recommended)
+
+1. Change the first line of pytorch_requirements.txt to `--index-url https://download.pytorch.org/whl/cpu`
+2. Go to the step 5 of the section "Install" just above
 
 ## Use
 
