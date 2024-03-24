@@ -26,7 +26,7 @@ def save_to_json(results, run_times, params, folder_path):
             for key in params["loss"].keys():
                 list_losses.append(key)
             params["loss"] = list_losses
-        elif type(params["loss"] != type("")):
+        elif type(params["loss"]) != type(""):
             if params["loss"] == CosineSimilarityLoss:
                 params["loss"] = "Pair-wise"
             elif params["loss"] == BatchAllTripletLoss:
@@ -352,3 +352,24 @@ def create_boxplot(data, title, xlabel, ylabel, vertical_xticks=False, custom_xt
     
     plt.grid(True)
     plt.show()
+    
+
+#############################################
+# Split dataset (training & test sets)
+#############################################    
+    
+# Here we don't use sklearn's function since we just want to split the dataset and we are not separating labels and descriptive variables
+def split_dataset(dataset, ratio):
+    """Split a dataset in two parts
+
+    Args:
+        dataset (pandas.DataFrame)
+        ratio (integer): Ratio of the size of the first subset compared to the whole dataset
+
+    Returns:
+        (pandas.DataFrame): First subset (size = dataset size * ratio)
+        (pandas.DataFrame): Second subset (size = dataset size * (1-ratio))
+    """
+    first_set = dataset.sample(frac = ratio, random_state=42)
+    second_set = dataset.drop(first_set.index)
+    return first_set, second_set

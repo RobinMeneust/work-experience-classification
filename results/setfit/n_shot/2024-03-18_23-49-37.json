@@ -1,1 +1,0 @@
-{"results": {"2": [], "4": [], "6": [], "10": [], "20": [], "40": [], "60": [], "100": []}, "run_times": {"2": [], "4": [], "6": [], "10": [], "20": [], "40": [], "60": [], "100": []}, "params": {"n_shot": [2, 4, 6, 10, 20, 40, 60, 100], "n_iter": 10, "n_max_iter_per_shot": 10, "model": "sentence-transformers/paraphrase-mpnet-base-v2", "loss": "Triplet"}}

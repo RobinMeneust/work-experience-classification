@@ -1,42 +1,15 @@
 import torch
 
-import os
+import sys
 from sentence_transformers.losses import BatchHardTripletLossDistanceFunction
-from sentence_transformers import SentenceTransformer, models
 from transformers import PrinterCallback, ProgressCallback
-from setfit import Trainer, TrainingArguments, sample_dataset, SetFitModel
+from setfit import Trainer, TrainingArguments, SetFitModel
 import gc
 import time
 
 #############################################
 # SetFit init and training
 #############################################
-
-# Create Sentence Transformer from Transformer
-def download_and_convert_transformer(model_name):
-    word_embedding_model = None
-    model = None
-    path = None
-    err = None
-    
-    try:
-        path = "models/"+model_name
-        print(path)
-        word_embedding_model = models.Transformer(model_name, max_seq_length=512)
-        pooling_model = models.Pooling(word_embedding_model.get_word_embedding_dimension())
-        model = SentenceTransformer(modules=[word_embedding_model, pooling_model])
-        model.save(path)
-    except Exception as e:
-        err = e
-    finally:
-        del model
-        torch.cuda.empty_cache()
-        gc.collect()
-    
-    if path is None:
-        raise err
-    
-    return path
 
 # Get a setfit model from name or path
 def get_setfit_model(model_name, device, use_differentiable_head=False):
@@ -93,8 +66,16 @@ def init_setfit_trainer(model, loss, train_dataset, test_dataset, distance_metri
     
     return trainer
 
+# We need a class with a write function like sys.stdout to redirect the stdout of the child to the parent
+class PipeWriter:
+    def __init__(self, pipe):
+        self.pipe = pipe
+
+    def write(self, message):
+        self.pipe.send(message)
+    
 # Run a test on setfit (training + evaluation)
-def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric = None, num_epochs = None , batch_size = None, head_learning_rate = None):
+def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric = None, num_epochs = None , batch_size = None, head_learning_rate = None, ratio_frozen_weights=None):
     """Initialize and test a SetFit model with the given params
 
     Args:
@@ -114,6 +95,8 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
         number: F1-score
         number: Run time (training only)
     """
+    
+    sys.stdout = PipeWriter(pipe)
     
     if torch.cuda.is_available():    
         device = torch.device("cuda")
@@ -139,9 +122,10 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
                 batch_size = (16,2)
             if head_learning_rate is None:
                 head_learning_rate = 1e-2
-                    
+                
             model = get_setfit_model(model_name, device, (not (num_epochs is None)) and num_epochs[1]>1)
             trainer = init_setfit_trainer(model, loss, train_set, test_set, distance_metric, num_epochs, batch_size, head_learning_rate)
+            
             start_time = time.time()
             trainer.train()
             run_time = time.time() - start_time
@@ -154,10 +138,10 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
             del trainer
             gc.collect()
             torch.cuda.empty_cache()
-    except:
-        err = e
+    except Exception as e2:
+        err = e2
     if not(err is None):
-        pipe.send(err)
+        pipe.send(Exception(str(err)))
     else:
         pipe.send((metrics['f1'], run_time))
     pipe.close()
@@ -170,29 +154,48 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
 import protoNet
 
 # Run a test on protonet (training + evaluation)
-def protonet_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distance_metric = None, num_epochs = None , batch_size = None, head_learning_rate = None):    
+def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance_metric = None, num_epochs = None, batch_size = None, head_learning_rate = None, ratio_frozen_weights=None):
+    sys.stdout = PipeWriter(pipe)
+    
     f1_score = None
     run_time = None
+    tokenizer = None
+    model = None
+    err = None
+    
     try:
-        tokenizer, model = protoNet.get_tokenizer_and_model()
-        support_set = protoNet.gen_support_set(len(train_set)//2, tokenizer, train_set)
+        try:
+            if len(train_set) <= 1 or len(test_set) <= 1:
+                raise Exception("Invalid data sets length")
+            
+            # Replace by None with default values
+            if num_epochs is None:
+                num_epochs = (20,0)
+            if batch_size is None:
+                batch_size = (4,0)
+            if ratio_frozen_weights is None:
+                ratio_frozen_weights = 0.7
+            
+            tokenizer, model = protoNet.get_tokenizer_and_model(model_name, ratio_frozen_weights)
+            
+            support_set = protoNet.gen_support_set(len(train_set)//2, tokenizer, train_set) # TODO // 2 MUST BE CHANGED to // nbClasses
+            
+            start_time = time.time()
+            model = protoNet.protonet_train(support_set, train_set, tokenizer, model, num_epochs=num_epochs[0], batch_size=batch_size[0])
+            run_time = time.time() - start_time
+            f1_score = protoNet.eval(test_set, tokenizer, model, support_set)
+        except Exception as e:
+            raise e
+        finally:
+            del tokenizer
+            del model
+            gc.collect()
+            torch.cuda.empty_cache()
+    except Exception as e2:
+        err = e2
         
-        start_time = time.time()
-        model = protoNet.protonet_train(support_set, train_set, tokenizer, model)
-        run_time = time.time() - start_time
-
-        print("Eval...")
-        f1_score = protoNet.eval(test_set, tokenizer, model, support_set)
-    except Exception as e:
-        err = e
-    finally:
-        del tokenizer
-        del model
-        gc.collect()
-        torch.cuda.empty_cache()
-        
-    if (err is None):
-        pipe.send(err)
+    if not(err is None):
+        pipe.send(Exception(str(err)))
     else:
         pipe.send((f1_score, run_time))
     pipe.close()

@@ -1,31 +1,29 @@
 import torch
 from torcheval.metrics.functional import binary_f1_score
-from transformers import BertTokenizer, BertModel
+from transformers import AutoTokenizer, AutoModel
+import gc
 
 if torch.cuda.is_available():    
     device = torch.device("cuda")
 else:
     device = torch.device("cpu")
     
-def get_tokenizer_and_model(source="bert-base-multilingual-cased"):
-    tokenizer = BertTokenizer.from_pretrained(source)
-    embedding_model = BertModel.from_pretrained(source)
+def get_tokenizer_and_model(model_name="google-bert/bert-base-multilingual-cased", ratio_frozen_weights=0.7):
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    embedding_model = AutoModel.from_pretrained(model_name)
     embedding_model.to(device)
-    embedding_model.cuda()
     
-    # Freeze some parameters since we can't load the whole model in the VRAM
-    freeze_first_params_ratio = 0.7
-    nb_frozen_params = int(freeze_first_params_ratio * len(list(embedding_model.named_parameters())))
+    # Freeze some parameters if we can't load the whole model in the VRAM
+    nb_frozen_params = int(ratio_frozen_weights * len(list(embedding_model.named_parameters())))
 
-    for _, param in list(embedding_model.named_parameters())[0:nb_frozen_params+1]: 
+    for _, param in list(embedding_model.named_parameters())[0:nb_frozen_params-1]: 
         param.requires_grad = False
     return tokenizer, embedding_model
 
 
-def split_train_test_n_shot(dataset, n_samples_per_class):
-    train_set = dataset.groupby('label').head(n_samples_per_class)
-    test_set = dataset.drop(train_set.index)
-    return train_set, test_set
+def get_n_shot_dataset(dataset, n_samples_per_class):
+    new_dataset = dataset.groupby('label').head(n_samples_per_class)
+    return new_dataset
 
 
 def gen_support_set(n_shots, tokenizer, dataset):
@@ -56,6 +54,10 @@ def predict(tokenizer, embedding_model, instance, support_set):
     encoded_input = tokenizer(instance, return_tensors='pt', truncation=True)
     encoded_input.to(device)
     embedding = embedding_model(**encoded_input)["pooler_output"]
+    del encoded_input
+    gc.collect()
+    torch.cuda.empty_cache()
+    
     similarities = []
     
     prototypes_support_set = get_prototypes_support_set(support_set, embedding_model)
@@ -96,7 +98,7 @@ def gen_batches(training_set, tokenizer, batch_size):
 
 
 
-def eval(test_set, tokenizer, embedding_model, support_set):   
+def eval(test_set, tokenizer, embedding_model, support_set, verbose=False):   
     embedding_model.eval()
 
     predictions = []
@@ -113,14 +115,19 @@ def eval(test_set, tokenizer, embedding_model, support_set):
     
     for batch in batches:
         inputs, labels = batch
-        progress_temp += 1
         
-        if progress_temp % progress_step == 0:
-            progress += 1
-            print("Eval:", progress,"/", progress_end)
+        if verbose:
+            progress_temp += 1
+            
+            if progress_temp % progress_step == 0:
+                progress += 1
+                print("Eval:", progress,"/", progress_end)
         
         inputs.to(device)
         embedding_model_output = embedding_model(**inputs)["pooler_output"]
+        del inputs
+        gc.collect()
+        torch.cuda.empty_cache()
             
         for i in range(len(embedding_model_output)):
             embedding = torch.unsqueeze(embedding_model_output[i],0)
@@ -137,20 +144,26 @@ def eval(test_set, tokenizer, embedding_model, support_set):
     return binary_f1_score(predictions, expected).item()
 
 
-def protonet_train(support_set, train_set, tokenizer, embedding_model, n_epochs=20):
+def protonet_train(support_set, train_set, tokenizer, embedding_model, num_epochs=20, batch_size=16, verbose=False):
     optimizer = torch.optim.AdamW(embedding_model.parameters(), lr=1e-5)
     torch.cuda.empty_cache()
     embedding_model.zero_grad()
-
+    
     try:
         embedding_model.train()
-        for _ in range(n_epochs):
-            batches = gen_batches(train_set, tokenizer, 16)
+        for epoch in range(1,num_epochs+1):
+            if verbose:
+                print("Epoch: ", epoch, "/", num_epochs,"...",end="")
+            batches = gen_batches(train_set, tokenizer, batch_size)
+            epoch_mean_loss = 0
+            
             for batch in batches:
                 optimizer.zero_grad()
                 inputs, labels = batch
                 inputs.to(device)
                 embedding_model_output = embedding_model(**inputs)["pooler_output"]
+                
+                del inputs
                 losses = []           
                 
                 embeddings_support_set = get_prototypes_support_set(support_set, embedding_model)
@@ -163,9 +176,19 @@ def protonet_train(support_set, train_set, tokenizer, embedding_model, n_epochs=
                         target = torch.tensor([1.0]) if j == labels[i] else torch.tensor([-1.0])
                         target = target.to(device)
                         losses.append(torch.nn.functional.cosine_embedding_loss(current_class_support_data, input2, target))
-                loss = torch.mean(torch.stack(losses))        
+                        del target
+                    del input2
+                
+                gc.collect()
+                torch.cuda.empty_cache()
+                loss = torch.mean(torch.stack(losses))
+                epoch_mean_loss += loss.item()
+                
                 loss.backward()
                 optimizer.step()
+            if verbose:  
+                epoch_mean_loss /= len(batches)
+                print(f" Training loss: {epoch_mean_loss:.2f}")
     finally:
         torch.cuda.empty_cache()
     return embedding_model
