@@ -580,18 +580,31 @@ import random
 
 nltk.download('wordnet')
 
-def get_synonyms(word, lang):
+def to_wordnet_pos(pos):
+    if pos.startswith('J'):
+        return wordnet.ADJ
+    elif pos.startswith('V'):
+        return wordnet.VERB
+    elif pos.startswith('N'):
+        return wordnet.NOUN
+    elif pos.startswith('R'):
+        return wordnet.ADV
+    else:
+        return ''
+
+def get_synonyms(word, pos, lang):
     """Get the synonyms of a word in the given language using WordNet
 
     Args:
         word (string): Word whose synonyms are searched
+        pos (string): Part of speech tag
         lang (string): Language of the word (e.g. 'fr' or 'en')
 
     Returns:
         list: List of synonyms (strings)
     """
     l = 'fra' if lang == 'fr' else 'eng'
-    synonyms=[synset.lemma_names(l) for synset in wordnet.synsets(word, lang=l)]
+    synonyms=[synset.lemma_names(l) for synset in wordnet.synsets(word, pos=to_wordnet_pos(pos), lang=l)]
     
     synonyms = sum(synonyms, []) # concatenate the nested list synonyms
     synonyms = list(set(synonyms)) # remove duplicates
@@ -601,17 +614,18 @@ def get_synonyms(word, lang):
     
     return synonyms
 
-def replace_with_synonym(word, lang):
+def replace_with_synonym(word, pos, lang):
     """Replace a word with one of its synonym (one is chosen randomly)
 
     Args:
         word (string): Word replaced
+        pos (string): Part of speech tag
         lang (string): Language of the word (e.g. 'fr' or 'en')
 
     Returns:
         string: New word
     """
-    synonyms = get_synonyms(word, lang)
+    synonyms = get_synonyms(word, pos, lang)
     if synonyms:
         syn = random.choice(synonyms)
         word = syn
@@ -645,11 +659,12 @@ def apply_synonym_replacement_to_text(text, lang, params=None):
  
     for sentence in sentences:
         tokenized = word_tokenize(sentence)
+        pos_tags = nltk.pos_tag(tokenized)
         augmented_tokens = []
-        for token in tokenized:
+        for token, pos in pos_tags:
             do_replace_by_synonym = 1 == np.random.choice([0,1], p=[opposite_modification_ratio,modification_rate])
             if do_replace_by_synonym:
-                augmented_tokens.append(replace_with_synonym(token, lang))
+                augmented_tokens.append(replace_with_synonym(token, pos, lang))
             else:
                 augmented_tokens.append(token)
         augmented_sentence = ' '.join(augmented_tokens)

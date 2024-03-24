@@ -1,0 +1,1 @@
+{"results": {"Pair-wise": [0.6339982653946227], "Triplet": [0.6005735354362965, 0.6386404293381037]}, "run_times": {"Pair-wise": [14.469128131866455], "Triplet": [9.801998138427734, 8.560999155044556]}, "params": {"n_shot": 8, "n_iter": 2, "model": "sentence-transformers/paraphrase-mpnet-base-v2", "loss": ["Pair-wise", "Triplet"]}}
