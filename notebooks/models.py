@@ -199,3 +199,51 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
     else:
         pipe.send((f1_score, run_time))
     pipe.close()
+    
+    
+
+#############################################
+# Flair init and training
+#############################################
+
+import flairModel
+
+# Run a test on protonet (training + evaluation)
+def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distance_metric = None, num_epochs = None, batch_size = None, head_learning_rate = None, ratio_frozen_weights=None):
+    sys.stdout = PipeWriter(pipe)
+    
+    f1_score = None
+    run_time = None
+    err = None
+    model = None
+    
+    try:
+        try:
+            if len(train_set) <= 1 or len(test_set) <= 1:
+                raise Exception("Invalid data sets length")
+            
+            print("get model...")
+            model = flairModel.get_tars_model()
+            
+            print("training...")
+            start_time = time.time()
+            flairModel.flair_train(train_set, model, verbose=False)
+            run_time = time.time() - start_time
+            
+            print("evaluating...")
+            f1_score = flairModel.eval(test_set, model)
+            print("done")
+        except Exception as e:
+            raise e
+        finally:
+            del model
+            gc.collect()
+            torch.cuda.empty_cache()
+    except Exception as e2:
+        err = e2
+        
+    if not(err is None):
+        pipe.send(Exception(str(err)))
+    else:
+        pipe.send((f1_score, run_time))
+    pipe.close()

@@ -1,0 +1,1 @@
+{"results": {"1": [0.25], "2": [0.182], "4": [0.285], "6": [0.338], "10": [0.37]}, "run_times": {"1": [660], "2": [617], "4": [627], "6": [638], "10": [650]}, "params": {"n_shot": [1, 2, 4, 6, 10], "n_iter": 10, "n_max_iter_per_shot": 1, "model": "https://github.com/flairNLP/flair/tree/master"}}

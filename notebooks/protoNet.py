@@ -20,12 +20,6 @@ def get_tokenizer_and_model(model_name="google-bert/bert-base-multilingual-cased
         param.requires_grad = False
     return tokenizer, embedding_model
 
-
-def get_n_shot_dataset(dataset, n_samples_per_class):
-    new_dataset = dataset.groupby('label').head(n_samples_per_class)
-    return new_dataset
-
-
 def gen_support_set(n_shots, tokenizer, dataset):
     shuffled_dataset = dataset.shuffle(seed=42)
        

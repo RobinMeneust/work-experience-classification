@@ -220,7 +220,7 @@ def load_all_results_data(folder, test_name, filters={}):
 
 import matplotlib.pyplot as plt
 
-def create_scatter_line_plot(data, title, xlabel, ylabel):
+def create_scatter_line_plot(data, title, xlabel, ylabel, y_min = None, y_max = None):
     """Create a scatter graph with a line passing through the mean values
 
     Args:
@@ -249,11 +249,13 @@ def create_scatter_line_plot(data, title, xlabel, ylabel):
     yAll = np.concatenate(list(data.values()))
     
     plt.figure(figsize=(8, 6))
+    plt.ylim(y_min, y_max)
     plt.plot(xMean, yMean, marker='', linestyle='-')
     plt.scatter(xAll, yAll)
     
     for i in range(len(xMean)):
-        plt.text(xMean[i], yMean[i], f'{yMean[i]:.2f}', ha='center', bbox = dict(facecolor = 'white', alpha =.8))
+        if (y_max is None or yMean[i] <= y_max) and (y_min is None or yMean[i] >= y_min):
+            plt.text(xMean[i], yMean[i], f'{yMean[i]:.2f}', ha='center', bbox = dict(facecolor = 'white', alpha =.8))
     
     plt.title(title)
     plt.xlabel(xlabel)
@@ -262,7 +264,7 @@ def create_scatter_line_plot(data, title, xlabel, ylabel):
     plt.grid(True)
     plt.show()
 
-def create_bar_plot(data, title, xlabel, ylabel, vertical_xticks=False, custom_xticks=None):
+def create_bar_plot(data, title, xlabel, ylabel, vertical_xticks=False, custom_xticks=None, y_min = None, y_max = None):
     """Create a bar graph
 
     Args:
@@ -272,7 +274,7 @@ def create_bar_plot(data, title, xlabel, ylabel, vertical_xticks=False, custom_x
         ylabel (string): Name of the y axis
         vertical_xticks (bool, optional): If True then the x values are vertical otherwise they are horizontal (useful for long text labels). Defaults to False.
         custom_xticks (list, optional): List of values for the x axis. If None then the keys in data are used. Defaults to None.
-    """
+    """   
     resultsMeans = {}
 
     for key in data.keys():
@@ -296,10 +298,11 @@ def create_bar_plot(data, title, xlabel, ylabel, vertical_xticks=False, custom_x
             print("WARNING: The array of x ticks must be of the same length of the one created without it (when custom_xticks=None). The xticks were not changed to the given ones.")
 
     for i in range(len(yMean)):
-        plt.text(i, yMean[i], f'{yMean[i]:.2f}', ha = 'center', bbox = dict(facecolor = 'white', alpha =.8))
+        if (y_max is None or yMean[i] <= y_max) and (y_min is None or yMean[i] >= y_min):
+            plt.text(i, yMean[i], f'{yMean[i]:.2f}', ha = 'center', bbox = dict(facecolor = 'white', alpha =.8))
  
     
-    
+    plt.ylim(y_min, y_max)
     plt.bar(xMean, yMean)
 
     plt.title(title)
@@ -309,7 +312,7 @@ def create_bar_plot(data, title, xlabel, ylabel, vertical_xticks=False, custom_x
     plt.show()
  
  
-def create_boxplot(data, title, xlabel, ylabel, vertical_xticks=False, custom_xticks=None):
+def create_boxplot(data, title, xlabel, ylabel, vertical_xticks=False, custom_xticks=None, y_min = None, y_max = None):
     """Create a box plot
 
     Args:
@@ -326,6 +329,7 @@ def create_boxplot(data, title, xlabel, ylabel, vertical_xticks=False, custom_xt
         medians[key] = np.median(value)
 
     plt.figure(figsize=(8, 6))
+    plt.ylim(y_min, y_max)
     plt.boxplot(data.values())
     
     labels = data.keys()
@@ -343,7 +347,8 @@ def create_boxplot(data, title, xlabel, ylabel, vertical_xticks=False, custom_xt
     
     i = 1 
     for key in data.keys():
-        plt.text(i, medians[key], f'{medians[key]:.2f}', ha='center', bbox = dict(facecolor = 'white', alpha =.8))
+        if (y_max is None or medians[key] <= y_max) and (y_min is None or medians[key] >= y_min):
+            plt.text(i, medians[key], f'{medians[key]:.2f}', ha='center', bbox = dict(facecolor = 'white', alpha =.8))
         i += 1
     
     plt.title(title)
@@ -373,3 +378,11 @@ def split_dataset(dataset, ratio):
     first_set = dataset.sample(frac = ratio, random_state=42)
     second_set = dataset.drop(first_set.index)
     return first_set, second_set
+
+#############################################
+# Create support set (n samples per class)
+#############################################   
+
+def get_n_shot_dataset(dataset, n_samples_per_class):
+    new_dataset = dataset.groupby('label').head(n_samples_per_class)
+    return new_dataset

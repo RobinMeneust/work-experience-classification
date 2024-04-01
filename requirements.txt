@@ -9,3 +9,4 @@ langdetect
 setfit
 torcheval
 sentencepiece
+flair
