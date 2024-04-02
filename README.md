@@ -2,10 +2,6 @@
 
 Classify work experience from Linkedin using a few-shot learning AI model
 
-## Install
-
-First you need to install Python (tested on Python 3.10.6)
-
 ## How to use the GPU
 
 ### Nvidia
@@ -31,6 +27,10 @@ Change the first line of pytorch_requirements.txt to `--index-url https://downlo
 ### Using the quickstart script
 
 Run `quickstart.bat` on Windows and `quickstart.sh` on Linux
+
+## Install
+
+First you need to install Python (tested on Python 3.10.6)
 
 ### Manually
 
