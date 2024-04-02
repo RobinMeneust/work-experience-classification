@@ -73,6 +73,10 @@ class PipeWriter:
 
     def write(self, message):
         self.pipe.send(message)
+        
+    def flush(self):
+        pass
+
     
 # Run a test on setfit (training + evaluation)
 def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric = None, num_epochs = None , batch_size = None, head_learning_rate = None, ratio_frozen_weights=None):
