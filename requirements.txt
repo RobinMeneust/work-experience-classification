@@ -10,3 +10,4 @@ setfit
 torcheval
 sentencepiece
 flair
+nltk

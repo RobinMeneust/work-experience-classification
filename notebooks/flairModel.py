@@ -18,21 +18,16 @@ def get_tars_model():
     gc.collect()
     tars = None
     try:
-        tars = TARSClassifier.load('AyoubChLin/ESG-bert-BBC_news')
-        print("success")
+        tars = TARSClassifier.load('tars-base')
     except Exception as e:
         raise Exception("Flair model could not be loaded: ", str(e))
     return tars
 
-def eval(test_set, tars_model, verbose=False):   
+def eval(test_set, tars_model, verbose=False):
     tars_model.eval()
- 
     test_sentences = [Sentence(text).add_label('class', str(label)) for text, label in zip(test_set['text'], test_set['label'])]
-    test_loader = TorchDataLoader(test_sentences, batch_size=16, collate_fn=lambda x: x)
 
-    result, _ = tars_model.evaluate(test_loader, gold_label_type='class')
-    print(f"F1 Score: {result.main_score}")
-
+    result = tars_model.evaluate(test_sentences, gold_label_type='class', mini_batch_size=32)
     return result.main_score
 
 
@@ -42,14 +37,15 @@ def flair_train(train_set, tars_model, verbose=False):
     
     # Create the corpus
     corpus = Corpus(train=train_sentences)
-    unique_labels = train_set['label'].unique().astype(str).tolist()
-
+    unique_labels = list(set(train_set['label']))
+    unique_labels = list(map(str, unique_labels))
+    
     # Add a new task for labels
     tars_model.add_and_switch_to_new_task(task_name='Classification task', label_dictionary=unique_labels, label_type='class')
-
+    
     # Configure the trainer
     trainer = ModelTrainer(tars_model, corpus)
-
+    
     # Create output folder if it doesn't exist
     output_path = r"../models/flair"
     if not os.path.exists(output_path):

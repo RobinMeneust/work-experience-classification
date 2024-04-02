@@ -115,6 +115,7 @@ def n_shot_tests(params, train_set, test_set, few_shot_model_f1_function):
         new_test_set = Dataset.from_pandas(test_set, split="test")
 
         for n_shot in n_values:
+            i_shot = 0
             try:
                 n_iter_shot = n_max_iter_per_shot if n_shot < n_values_max else 1
                 for i_shot in range(n_iter_shot):
@@ -127,6 +128,7 @@ def n_shot_tests(params, train_set, test_set, few_shot_model_f1_function):
                     run_times[n_shot].append(run_time)
             except Exception as err:
                 print(n_shot, "failed", str(err))
+                progress += n_iter_shot - i_shot - 1
     return results, run_times
 
 
@@ -1159,7 +1161,13 @@ def frozen_ratio_tests(params, train_set, test_set, few_shot_model_f1_function):
 # Run a task on another process
 #############################################
 
+from torch.multiprocessing import Pool, Process, set_start_method
 def run_test_job(target, kwargs=None):
+    try:
+        set_start_method('spawn')
+    except RuntimeError:
+        pass
+
     receiver, sender = multiprocessing.Pipe()
 
     if not(kwargs is None) and type(kwargs) == type({}):
