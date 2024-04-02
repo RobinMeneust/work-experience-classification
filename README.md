@@ -23,7 +23,7 @@ For both Windows and Linux:
 
 For Linux only (not available on Windows):
 
-1. Install ROCm 5.7.0 Follow the instructions here: https://rocm.docs.amd.com/en/docs-5.7.0/deploy/linux/os-native/install.html
+1. Install ROCm 5.7.0. Follow the instructions here: https://rocm.docs.amd.com/en/docs-5.7.0/deploy/linux/os-native/install.html
 2. Change the first line of pytorch_requirements.txt to `--index-url https://download.pytorch.org/whl/rocm5.7`
 3. Go to the step 5 of the section "Install" just above
 
@@ -37,6 +37,8 @@ For Linux only (not available on Windows):
 1. Run `jupyter notebook` at the root of this project
 2. Go to the window that has been opened or open your web browser and go to http://localhost:8888 (or the URL that is given in the terminal)
 3. Open on this web page the folder notebooks/ and open the notebook that you want to read
+
+Open few_shot_benchmark.ipynb if you want to generate test results for SetFit and the ProtoNet
 
 ## Notes
 
