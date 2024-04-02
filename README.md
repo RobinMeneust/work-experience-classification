@@ -24,13 +24,13 @@ For Linux only (not available on Windows).
 
 Change the first line of pytorch_requirements.txt to `--index-url https://download.pytorch.org/whl/cpu`
 
-### Using the quickstart script
-
-Run `quickstart.bat` on Windows and `quickstart.sh` on Linux
-
 ## Install
 
 First you need to install Python (tested on Python 3.10.6)
+
+### Using the quickstart script
+
+Run `quickstart.bat` on Windows and `quickstart.sh` on Linux
 
 ### Manually
 
