@@ -1,8 +1,8 @@
 #!/bin/bash
 
-python -m pip install virtualenv
+pip install virtualenv
 echo "installed virtualenv"
-python -m venv .venv
+virtualenv .venv
 echo "venv created"
 source .venv/bin/activate
 echo "venv enabled"
