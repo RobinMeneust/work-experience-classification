@@ -4,7 +4,7 @@ import gc
 import time
 import pandas as pd
 import numpy as np
-from utility import get_remaining_time_str
+from benchmark.utility import get_remaining_time_str
 from datasets import Dataset
 import multiprocessing
 

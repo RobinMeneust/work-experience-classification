@@ -3,7 +3,6 @@
 from flair.data import Sentence, Corpus
 from flair.models import TARSClassifier
 from flair.trainers import ModelTrainer
-from torch.utils.data import DataLoader as TorchDataLoader
 import torch
 import gc
 import os
@@ -47,7 +46,7 @@ def flair_train(train_set, tars_model, verbose=False):
     trainer = ModelTrainer(tars_model, corpus)
     
     # Create output folder if it doesn't exist
-    output_path = r"../models/flair"
+    output_path = r"../saved_models/flair"
     if not os.path.exists(output_path):
         os.makedirs(output_path)
         

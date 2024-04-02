@@ -1,1 +1,1 @@
-{"results": {"camembert-base": [0.47966231772831924]}, "run_times": {"camembert-base": [14.861961126327515]}, "params": {"n_shot": 8, "n_iter": 1, "loss": "Triplet", "model": {"camembert-base": "models/almanach/camembert-base"}}}
+{"results": {"camembert-base": [0.47966231772831924]}, "run_times": {"camembert-base": [14.861961126327515]}, "params": {"n_shot": 8, "n_iter": 1, "loss": "Triplet", "model": {"camembert-base": "saved_models/almanach/camembert-base"}}}

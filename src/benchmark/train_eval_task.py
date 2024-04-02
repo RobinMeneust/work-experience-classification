@@ -6,6 +6,8 @@ from transformers import PrinterCallback, ProgressCallback
 from setfit import Trainer, TrainingArguments, SetFitModel
 import gc
 import time
+import models.flair as flair
+import models.protonet as protonet
 
 #############################################
 # SetFit init and training
@@ -155,8 +157,6 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
 # ProtoNet init and training
 #############################################
 
-import protoNet
-
 # Run a test on protonet (training + evaluation)
 def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance_metric = None, num_epochs = None, batch_size = None, head_learning_rate = None, ratio_frozen_weights=None):
     sys.stdout = PipeWriter(pipe)
@@ -180,14 +180,14 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
             if ratio_frozen_weights is None:
                 ratio_frozen_weights = 0.7
             
-            tokenizer, model = protoNet.get_tokenizer_and_model(model_name, ratio_frozen_weights)
+            tokenizer, model = protonet.get_tokenizer_and_model(model_name, ratio_frozen_weights)
             
-            support_set = protoNet.gen_support_set(len(train_set)//2, tokenizer, train_set) # TODO // 2 MUST BE CHANGED to // nbClasses
+            support_set = protonet.gen_support_set(len(train_set)//2, tokenizer, train_set) # TODO // 2 MUST BE CHANGED to // nbClasses if we want to work on multi class classification
             
             start_time = time.time()
-            model = protoNet.protonet_train(support_set, train_set, tokenizer, model, num_epochs=num_epochs[0], batch_size=batch_size[0])
+            model = protonet.protonet_train(support_set, train_set, tokenizer, model, num_epochs=num_epochs[0], batch_size=batch_size[0])
             run_time = time.time() - start_time
-            f1_score = protoNet.eval(test_set, tokenizer, model, support_set)
+            f1_score = protonet.eval(test_set, tokenizer, model, support_set)
         except Exception as e:
             raise e
         finally:
@@ -210,8 +210,6 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
 # Flair init and training
 #############################################
 
-import flairModel
-
 # Run a test on Flair (training + evaluation)
 def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distance_metric = None, num_epochs = None, batch_size = None, head_learning_rate = None, ratio_frozen_weights=None):
     sys.stdout = PipeWriter(pipe)
@@ -226,13 +224,13 @@ def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distan
             if len(train_set) <= 1 or len(test_set) <= 1:
                 raise Exception("Invalid data sets length")
             
-            model = flairModel.get_tars_model()
+            model = flair.get_tars_model()
             
             start_time = time.time()
-            flairModel.flair_train(train_set, model, verbose=False)
+            flair.flair_train(train_set, model, verbose=False)
             run_time = time.time() - start_time
             
-            f1_score = flairModel.eval(test_set, model)
+            f1_score = flair.eval(test_set, model)
         except Exception as e:
             raise e
         finally:
