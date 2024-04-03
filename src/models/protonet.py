@@ -20,7 +20,7 @@ def get_tokenizer_and_model(model_name="google-bert/bert-base-multilingual-cased
         param.requires_grad = False
     return tokenizer, embedding_model
 
-def gen_support_set(n_shots, tokenizer, dataset):
+def gen_tokenized_support_set(n_shots, tokenizer, dataset):
     shuffled_dataset = dataset.shuffle(seed=42)
        
     support_set = {}

@@ -8,6 +8,7 @@ import gc
 import time
 import models.flair as flair
 import models.protonet as protonet
+import models.llama2 as llama2
 
 #############################################
 # SetFit init and training
@@ -182,7 +183,7 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
             
             tokenizer, model = protonet.get_tokenizer_and_model(model_name, ratio_frozen_weights)
             
-            support_set = protonet.gen_support_set(len(train_set)//2, tokenizer, train_set) # TODO // 2 MUST BE CHANGED to // nbClasses if we want to work on multi class classification
+            support_set = protonet.gen_tokenized_support_set(len(train_set)//2, tokenizer, train_set) # TODO // 2 MUST BE CHANGED to // nbClasses if we want to work on multi class classification
             
             start_time = time.time()
             model = protonet.protonet_train(support_set, train_set, tokenizer, model, num_epochs=num_epochs[0], batch_size=batch_size[0])
@@ -245,3 +246,44 @@ def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distan
     else:
         pipe.send((f1_score, run_time))
     pipe.close()
+    
+
+#############################################
+# Llama2 init and training
+#############################################
+
+# Run a test on Llama2 (training + evaluation)
+def llama2_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distance_metric = None, num_epochs = None, batch_size = None, head_learning_rate = None, ratio_frozen_weights=None):
+    sys.stdout = PipeWriter(pipe)
+    
+    f1_score = None
+    tokenizer = None
+    model = None
+    err = None
+    
+    try:
+        try:
+            if len(train_set) <= 1 or len(test_set) <= 1:
+                raise Exception("Invalid data sets length")
+            
+            tokenizer, model = llama2.get_tokenizer_and_model()
+            
+            support_set = llama2.gen_support_set(len(train_set)//2, tokenizer, train_set) # TODO // 2 MUST BE CHANGED to // nbClasses if we want to work on multi class classification
+            
+            f1_score = llama2.eval(test_set, tokenizer, model, support_set, True)
+        except Exception as e:
+            raise e
+        finally:
+            del tokenizer
+            del model
+            gc.collect()
+            torch.cuda.empty_cache()
+    except Exception as e2:
+        err = e2
+        
+    if not(err is None):
+        pipe.send(Exception(str(err)))
+    else:
+        pipe.send((f1_score, 0))
+    pipe.close()
+    
