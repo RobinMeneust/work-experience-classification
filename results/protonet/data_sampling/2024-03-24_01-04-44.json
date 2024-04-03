@@ -1,1 +1,1 @@
-{"results": {"all": []}, "run_times": {"all": []}, "params": {"n_shot": 8, "n_iter": 2, "loss": "Triplet", "model": "sentence-transformers/paraphrase-mpnet-base-v2", "num_epochs": "(1,16)", "input_length_range": [0, 9]}}
+{"results": {"all": []}, "train_times": {"all": []}, "params": {"n_shot": 8, "n_iter": 2, "loss": "Triplet", "model": "sentence-transformers/paraphrase-mpnet-base-v2", "num_epochs": "(1,16)", "input_length_range": [0, 9]}}

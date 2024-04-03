@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from benchmark.utility import get_remaining_time_str
 from datasets import Dataset
-import multiprocessing
+from benchmark.train_eval_task import run_test_job
 
 #############################################
 # Apply length or language filters
@@ -94,10 +94,12 @@ def n_shot_tests(params, train_set, test_set, few_shot_model_f1_function):
     n_values_max = np.max(n_values)
 
     results = {}
-    run_times = {}
+    train_times = {}
+    eval_times = {}
     for n_shot in n_values:
         results[n_shot] = []
-        run_times[n_shot] = []
+        train_times[n_shot] = []
+        eval_times[n_shot] = []
     
     progress = 0
     progress_end = n_iter * ((len(n_values)-1)*n_max_iter_per_shot + 1)
@@ -123,13 +125,14 @@ def n_shot_tests(params, train_set, test_set, few_shot_model_f1_function):
                     print("Step:", progress, "/", progress_end,"Estimated remaining time:", get_remaining_time_str(start_time, progress, progress_end))
         
                     train_set_n_shot = sample_dataset(new_train_set, label_column="label", num_samples=n_shot, seed=47*n_shot + 3*i_shot)
-                    f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":train_set_n_shot, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
+                    f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":train_set_n_shot, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
                     results[n_shot].append(f1_score)
-                    run_times[n_shot].append(run_time)
+                    train_times[n_shot].append(train_time)
+                    eval_times[n_shot].append(eval_time)
             except Exception as err:
                 print(n_shot, "failed", str(err))
                 progress += n_iter_shot - i_shot - 1
-    return results, run_times
+    return results, train_times, eval_times
 
 
 #############################################
@@ -159,13 +162,15 @@ def input_length_tests(params, train_set, test_set, few_shot_model_f1_function):
     ratio_frozen_weights = params["ratio_frozen_weights"] if "ratio_frozen_weights" in params else None
     
     results = {}
-    run_times = {}
+    train_times = {}
+    eval_times = {}
     new_test_set = Dataset.from_pandas(test_set, split="test")
 
     for i in range(len(len_values)):
         key = f"[{len_values[i][0]},{len_values[i][1]}]"
         results[key] = []
-        run_times[key] = []
+        train_times[n_shot] = []
+        eval_times[n_shot] = []
 
     progress = 0
     progress_end = n_iter * len(len_values)
@@ -182,12 +187,13 @@ def input_length_tests(params, train_set, test_set, few_shot_model_f1_function):
                 new_train_set = filter_dataset(train_set, len_values[i][0], len_values[i][1])
                 new_train_set = Dataset.from_pandas(new_train_set, split="train")
                 new_train_set = sample_dataset(new_train_set, label_column="label", num_samples=n_shot, seed=47*iter)
-                f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
+                f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
                 results[key].append(f1_score)
-                run_times[key].append(run_time)
+                train_times[n_shot].append(train_time)
+                eval_times[n_shot].append(eval_time)
             except Exception as err:
                 print(key, "failed", str(err))
-    return results, run_times
+    return results, train_times, eval_times
 
 
 #############################################
@@ -219,10 +225,12 @@ def distance_tests(params, train_set, test_set, few_shot_model_f1_function):
     ratio_frozen_weights = params["ratio_frozen_weights"] if "ratio_frozen_weights" in params else None
 
     results = {}
-    run_times = {}
+    train_times = {}
+    eval_times = {}
     for key in distances.keys():
         results[key] = []
-        run_times[key] = []
+        train_times[n_shot] = []
+        eval_times[n_shot] = []
 
     new_test_set = Dataset.from_pandas(test_set, split="test")
  
@@ -243,12 +251,13 @@ def distance_tests(params, train_set, test_set, few_shot_model_f1_function):
             print("Step:", progress, "/", progress_end,"Estimated remaining time:", get_remaining_time_str(start_time, progress, progress_end))
    
             try:
-                f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":loss, "distance_metric":distances[key], "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
+                f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":loss, "distance_metric":distances[key], "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
                 results[key].append(f1_score)
-                run_times[key].append(run_time)
+                train_times[n_shot].append(train_time)
+                eval_times[n_shot].append(eval_time)
             except Exception as err:
                 print(key, "failed", str(err))
-    return results, run_times
+    return results, train_times, eval_times
 
 
 #############################################
@@ -277,10 +286,12 @@ def loss_tests(params, train_set, test_set, few_shot_model_f1_function):
     ratio_frozen_weights = params["ratio_frozen_weights"] if "ratio_frozen_weights" in params else None
     
     results = {}
-    run_times = {}
+    train_times = {}
+    eval_times = {}
     for key in losses.keys():
         results[key] = []
-        run_times[key] = []
+        train_times[n_shot] = []
+        eval_times[n_shot] = []
 
     new_test_set = Dataset.from_pandas(test_set, split="test")
  
@@ -301,12 +312,13 @@ def loss_tests(params, train_set, test_set, few_shot_model_f1_function):
             print("Step:", progress, "/", progress_end,"Estimated remaining time:", get_remaining_time_str(start_time, progress, progress_end))
    
             try:
-                f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":losses[key], "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
+                f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":losses[key], "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
                 results[key].append(f1_score)
-                run_times[key].append(run_time)
+                train_times[n_shot].append(train_time)
+                eval_times[n_shot].append(eval_time)
             except Exception as err:
                 print(key, "failed", str(err))
-    return results, run_times
+    return results, train_times, eval_times
 
 #############################################
 # Language test
@@ -336,13 +348,16 @@ def language_tests(params, train_set, test_set, few_shot_model_f1_function):
     ratio_frozen_weights = params["ratio_frozen_weights"] if "ratio_frozen_weights" in params else None
     
     results = {}
-    run_times = {}
+    train_times = {}
+    eval_times = {}
 
     for key in languages:
         results[key] = []
-        run_times[key] = []
+        train_times[n_shot] = []
+        eval_times[n_shot] = []
     results['all'] = []
-    run_times['all'] = []
+    train_times['all'] = []
+    eval_times['all'] = []
  
     progress = 0
     progress_end = n_iter * (len(languages) + 1)
@@ -365,9 +380,10 @@ def language_tests(params, train_set, test_set, few_shot_model_f1_function):
             temp_test_set_panda[key] = filter_dataset(test_set, lang=key)
             temp_test_set = Dataset.from_pandas(temp_test_set_panda[key], split="test")
             try:
-                f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":temp_train_set, "test_set":temp_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
+                f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":temp_train_set, "test_set":temp_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
                 results[key].append(f1_score)
-                run_times[key].append(run_time)
+                train_times[n_shot].append(train_time)
+                eval_times[n_shot].append(eval_time)
             except Exception as err:
                 print(key, "failed", str(err))
                 del temp_train_set_panda[key]
@@ -391,12 +407,13 @@ def language_tests(params, train_set, test_set, few_shot_model_f1_function):
             all_test_set = pd.concat(all_temp_test_set)
             all_test_set = Dataset.from_pandas(all_test_set, split="test")
   
-            f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":all_train_set, "test_set":all_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
+            f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":all_train_set, "test_set":all_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
             results['all'].append(f1_score)
-            run_times['all'].append(run_time)
+            train_time['all'].append(train_time)
+            eval_times['all'].append(eval_time)
         except Exception as err:
             print('all', "failed", str(err))
-    return results, run_times
+    return results, train_times, eval_times
 
 
 #############################################
@@ -426,13 +443,15 @@ def model_tests(params, train_set, test_set, few_shot_model_f1_function):
     ratio_frozen_weights = params["ratio_frozen_weights"] if "ratio_frozen_weights" in params else None
     
     results = {}
-    run_times = {}
+    train_times = {}
+    eval_times = {}
     new_test_set = Dataset.from_pandas(test_set, split="test")
     start_time = time.time()
 
     for key in models.keys():
         results[key] = []
-        run_times[key] = []
+        train_times[n_shot] = []
+        eval_times[n_shot] = []
 
     progress = 0
     progress_end = n_iter * len(models)
@@ -451,12 +470,13 @@ def model_tests(params, train_set, test_set, few_shot_model_f1_function):
             print("Step:", progress, "/", progress_end,"Estimated remaining time:", get_remaining_time_str(start_time, progress, progress_end))
    
             try:
-                f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":full_model_name, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
+                f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":full_model_name, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
                 results[key].append(f1_score)
-                run_times[key].append(run_time)
+                train_times[n_shot].append(train_time)
+                eval_times[n_shot].append(eval_time)
             except Exception as err:
                 print(key, "failed", str(err))
-    return results, run_times
+    return results, train_times, eval_times
 
 #############################################
 # Number of epochs test
@@ -484,13 +504,15 @@ def num_epochs_tests(params, train_set, test_set, few_shot_model_f1_function):
     ratio_frozen_weights = params["ratio_frozen_weights"] if "ratio_frozen_weights" in params else None
     
     results = {}
-    run_times = {}
+    train_times = {}
+    eval_times = {}
     new_test_set = Dataset.from_pandas(test_set, split="test")
 
     for epoch_tuple in num_epochs:
         key = f"({epoch_tuple[0]}, {epoch_tuple[1]})"
         results[key] = []
-        run_times[key] = []
+        train_times[n_shot] = []
+        eval_times[n_shot] = []
 
     progress = 0
     progress_end = n_iter * len(num_epochs)
@@ -511,12 +533,13 @@ def num_epochs_tests(params, train_set, test_set, few_shot_model_f1_function):
             print("Step:", progress, "/", progress_end,"Estimated remaining time:", get_remaining_time_str(start_time, progress, progress_end))
    
             try:
-                f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":epoch_tuple, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
+                f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":epoch_tuple, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
                 results[key].append(f1_score)
-                run_times[key].append(run_time)
+                train_times[n_shot].append(train_time)
+                eval_times[n_shot].append(eval_time)
             except Exception as err:
                 print(key, "failed", str(err))
-    return results, run_times
+    return results, train_times, eval_times
 
 
 #############################################
@@ -545,7 +568,8 @@ def constant_params_tests(params, train_set, test_set, few_shot_model_f1_functio
     ratio_frozen_weights = params["ratio_frozen_weights"] if "ratio_frozen_weights" in params else None
     
     results = []
-    run_times = []
+    train_times = []
+    eval_times = []
     new_test_set = Dataset.from_pandas(test_set, split="test")
     progress = 0
 
@@ -560,12 +584,13 @@ def constant_params_tests(params, train_set, test_set, few_shot_model_f1_functio
         new_train_set = sample_dataset(new_train_set, label_column="label", num_samples=n_shot, seed=47*i)
 
         try:
-            f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
+            f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
             results.append(f1_score)
-            run_times.append(run_time)
+            train_times.append(train_time)
+            eval_times.append(eval_time)
         except Exception as err:
                 print(i, "failed", str(err))
-    return {"all":results}, {"all":run_times}
+    return {"all":results}, {"all":train_times}, {"all":eval_times}
 
 
 #############################################
@@ -1039,13 +1064,15 @@ def data_augmentation_tests(params, train_set, test_set, few_shot_model_f1_funct
         raise Exception("Only one parameter can be a list of different values, either data_augmentation_strategy or data_augmentation_ratio")
 
     results = {}
-    run_times = {}
+    train_times = {}
+    eval_times = {}
     if type(augmentation_ratio) == type([]):
         tested_param_values = augmentation_ratio
         tested_param_key = "data_augmentation_ratio"
         for r in augmentation_ratio:
             results[r] = []
-            run_times[r] = []
+            train_times[r] = []
+            eval_times[r] = []
     else :
         if type(strategy) != type([]):
             strategy = [strategy]
@@ -1053,7 +1080,8 @@ def data_augmentation_tests(params, train_set, test_set, few_shot_model_f1_funct
         tested_param_key = "data_augmentation_strategy"
         for s in strategy:
             results[s] = []
-            run_times[s] = []
+            train_times[s] = []
+            eval_times[s] = []
     
     progress = 0
     progress_end = n_iter * len(tested_param_values)
@@ -1089,13 +1117,14 @@ def data_augmentation_tests(params, train_set, test_set, few_shot_model_f1_funct
                 new_train_set_augmented = Dataset.from_pandas(new_train_set_augmented, split="test")
                 print("Training...",end="")
 
-                f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set_augmented, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
+                f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set_augmented, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio_frozen_weights})
                 print("Done")
                 results[val].append(f1_score)
-                run_times[val].append(run_time)
+                train_times[val].append(train_time)
+                eval_times[val].append(eval_time)                
             except Exception as err:
                 print(val, "failed", str(err))
-    return results, run_times
+    return results, train_times, eval_times
 
 
 
@@ -1125,10 +1154,12 @@ def frozen_ratio_tests(params, train_set, test_set, few_shot_model_f1_function):
     ratios_frozen_weights = params["ratio_frozen_weights"] if "ratio_frozen_weights" in params else None
     
     results = {}
-    run_times = {}
+    train_times = {}
+    eval_times = {}
     for r in ratios_frozen_weights:
         results[r] = []
-        run_times[r] = []
+        train_times[r] = []
+        eval_times[r] = []
 
     new_test_set = Dataset.from_pandas(test_set, split="test")
  
@@ -1149,46 +1180,11 @@ def frozen_ratio_tests(params, train_set, test_set, few_shot_model_f1_function):
             print("Step:", progress, "/", progress_end,"Estimated remaining time:", get_remaining_time_str(start_time, progress, progress_end))
    
             try:
-                f1_score, run_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio})
+                f1_score, train_time, eval_time = run_test_job(target=few_shot_model_f1_function, kwargs={"train_set":new_train_set, "test_set":new_test_set, "model_name":model, "loss":loss, "num_epochs":num_epochs, "batch_size":batch_size, "ratio_frozen_weights":ratio})
                 results[ratio].append(f1_score)
-                run_times[ratio].append(run_time)
+                train_times[ratio].append(train_time)
+                eval_times[ratio].append(eval_time)
             except Exception as err:
                 print(ratio, "failed", str(err))
-    return results, run_times
+    return results, train_times, eval_times
 
-
-#############################################
-# Run a task on another process
-#############################################
-
-from torch.multiprocessing import Pool, Process, set_start_method
-def run_test_job(target, kwargs=None):
-    try:
-        set_start_method('spawn')
-    except RuntimeError:
-        pass
-
-    receiver, sender = multiprocessing.Pipe()
-
-    if not(kwargs is None) and type(kwargs) == type({}):
-        args_with_return_val = kwargs
-    else:
-        args_with_return_val = {}
-    args_with_return_val["pipe"] = sender
-    
-    process = multiprocessing.Process(target=target, kwargs=args_with_return_val)
-    process.start()
-    result = receiver.recv()
-    while(type(result) == type("")): # Redirect stdout while the data received are strings
-        print(result, end="")
-        result = receiver.recv()
-    process.join()
-    receiver.close()
-    
-    if type(result) == Exception:
-        raise result
-    elif type(result) == type(()):
-        return result[0], result[1]
-    else:
-        raise Exception("Invalid values were returned by the training child process")
-    

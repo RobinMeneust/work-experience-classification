@@ -1,1 +1,1 @@
-{"results": {"sentence-croissant-llm-base": []}, "run_times": {"sentence-croissant-llm-base": []}, "params": {"n_shot": 8, "n_iter": 1, "loss": "Triplet", "batch_size": [4, 2], "model": {"sentence-croissant-llm-base": "Wissam42/sentence-croissant-llm-base"}}}
+{"results": {"sentence-croissant-llm-base": []}, "train_times": {"sentence-croissant-llm-base": []}, "params": {"n_shot": 8, "n_iter": 1, "loss": "Triplet", "batch_size": [4, 2], "model": {"sentence-croissant-llm-base": "Wissam42/sentence-croissant-llm-base"}}}

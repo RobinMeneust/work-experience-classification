@@ -1,5 +1,4 @@
 import torch
-
 import sys
 from sentence_transformers.losses import BatchHardTripletLossDistanceFunction
 from transformers import PrinterCallback, ProgressCallback
@@ -9,6 +8,7 @@ import time
 import models.flair as flair
 import models.protonet as protonet
 import models.llama2 as llama2
+import multiprocessing
 
 #############################################
 # SetFit init and training
@@ -114,7 +114,9 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
     model = None
     trainer = None
     metrics = None
-    run_time = None
+    train_time = None
+    eval_time = None
+    
     try:
         try:
             if len(train_set) <= 1 or len(test_set) <= 1:
@@ -135,9 +137,11 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
             
             start_time = time.time()
             trainer.train()
-            run_time = time.time() - start_time
+            train_time = time.time() - start_time
             
+            start_time = time.time()
             metrics = trainer.evaluate()
+            eval_time = time.time() - start_time
         except Exception as e:
             raise e
         finally:
@@ -150,7 +154,7 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
     if not(err is None):
         pipe.send(Exception(str(err)))
     else:
-        pipe.send((metrics['f1'], run_time))
+        pipe.send((metrics['f1'], train_time, eval_time))
     pipe.close()
 
 
@@ -163,10 +167,11 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
     sys.stdout = PipeWriter(pipe)
     
     f1_score = None
-    run_time = None
     tokenizer = None
     model = None
     err = None
+    train_time = None
+    eval_time = None
     
     try:
         try:
@@ -187,8 +192,11 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
             
             start_time = time.time()
             model = protonet.protonet_train(support_set, train_set, tokenizer, model, num_epochs=num_epochs[0], batch_size=batch_size[0])
-            run_time = time.time() - start_time
+            train_time = time.time() - start_time
+            
+            start_time = time.time()
             f1_score = protonet.eval(test_set, tokenizer, model, support_set)
+            eval_time = time.time() - start_time
         except Exception as e:
             raise e
         finally:
@@ -202,7 +210,7 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
     if not(err is None):
         pipe.send(Exception(str(err)))
     else:
-        pipe.send((f1_score, run_time))
+        pipe.send((f1_score, train_time, eval_time))
     pipe.close()
     
     
@@ -216,9 +224,10 @@ def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distan
     sys.stdout = PipeWriter(pipe)
     
     f1_score = None
-    run_time = None
     err = None
     model = None
+    train_time = None
+    eval_time = None
     
     try:
         try:
@@ -229,9 +238,11 @@ def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distan
             
             start_time = time.time()
             flair.flair_train(train_set, model, verbose=False)
-            run_time = time.time() - start_time
-            
+            train_time = time.time() - start_time
+
+            start_time = time.time()
             f1_score = flair.eval(test_set, model)
+            eval_time = time.time() - start_time
         except Exception as e:
             raise e
         finally:
@@ -244,7 +255,7 @@ def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distan
     if not(err is None):
         pipe.send(Exception(str(err)))
     else:
-        pipe.send((f1_score, run_time))
+        pipe.send((f1_score, train_time, eval_time))
     pipe.close()
     
 
@@ -260,6 +271,7 @@ def llama2_f1_score(train_set, test_set, pipe, model_name=None, loss=None, dista
     tokenizer = None
     model = None
     err = None
+    eval_time = None
     
     try:
         try:
@@ -270,7 +282,9 @@ def llama2_f1_score(train_set, test_set, pipe, model_name=None, loss=None, dista
             
             support_set = llama2.gen_support_set(len(train_set)//2, tokenizer, train_set) # TODO // 2 MUST BE CHANGED to // nbClasses if we want to work on multi class classification
             
+            start_time = time.time()
             f1_score = llama2.eval(test_set, tokenizer, model, support_set, True)
+            eval_time = time.time() - start_time
         except Exception as e:
             raise e
         finally:
@@ -284,6 +298,42 @@ def llama2_f1_score(train_set, test_set, pipe, model_name=None, loss=None, dista
     if not(err is None):
         pipe.send(Exception(str(err)))
     else:
-        pipe.send((f1_score, 0))
+        pipe.send((f1_score, 0, eval_time))
     pipe.close()
     
+    
+
+#############################################
+# Run a task on another process
+#############################################
+
+from torch.multiprocessing import set_start_method
+def run_test_job(target, kwargs=None):
+    try:
+        set_start_method('spawn')
+    except RuntimeError:
+        pass
+
+    receiver, sender = multiprocessing.Pipe()
+
+    if not(kwargs is None) and type(kwargs) == type({}):
+        args_with_return_val = kwargs
+    else:
+        args_with_return_val = {}
+    args_with_return_val["pipe"] = sender
+    
+    process = multiprocessing.Process(target=target, kwargs=args_with_return_val)
+    process.start()
+    result = receiver.recv()
+    while(type(result) == type("")): # Redirect stdout while the data received are strings
+        print(result, end="")
+        result = receiver.recv()
+    process.join()
+    receiver.close()
+    
+    if type(result) == Exception:
+        raise result
+    elif type(result) == type(()):
+        return result
+    else:
+        raise Exception("Invalid values were returned by the training child process")

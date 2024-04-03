@@ -1,1 +1,1 @@
-{"results": {"bge-large-en-v1.5": [0.6666666666666666]}, "run_times": {"bge-large-en-v1.5": [13.969577074050903]}, "params": {"n_shot": 8, "n_iter": 1, "loss": "Triplet", "model": {"bge-large-en-v1.5": "BAAI/bge-large-en-v1.5"}}}
+{"results": {"bge-large-en-v1.5": [0.6666666666666666]}, "train_times": {"bge-large-en-v1.5": [13.969577074050903]}, "params": {"n_shot": 8, "n_iter": 1, "loss": "Triplet", "model": {"bge-large-en-v1.5": "BAAI/bge-large-en-v1.5"}}}

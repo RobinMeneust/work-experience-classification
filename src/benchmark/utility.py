@@ -10,7 +10,7 @@ import numpy as np
 # Save files
 #############################################
 
-def save_to_json(results, run_times, params, folder_path):
+def save_to_json(results, train_times, eval_times, params, folder_path):
     """Save test data in the given folder
         The filename of the save files are the current time, e.g. 2024-03-14_13-58-01
     Args:
@@ -47,7 +47,7 @@ def save_to_json(results, run_times, params, folder_path):
         else:
             params["num_epochs"] = f"({params['num_epochs'][0]},{params['num_epochs'][1]})"
 
-    object = {"results":results, "run_times":run_times, "params": params}
+    object = {"results":results, "train_times":train_times, "eval_times":eval_times, "params": params}
 
     # Create folder if it doesn't exist
     if not os.path.exists(folder_path):
@@ -106,8 +106,11 @@ def load_results_data(filename, folder):
     """
     with open(folder+"/"+filename, 'r') as file:
         data = json.load(file)
- 
-    return data['results'], data['run_times'], data['params']
+    
+    train_times = data["train_times"] if "train_times" in data else {}
+    eval_times = data["eval_times"] if "eval_times" in data else {}
+    
+    return data['results'], train_times, eval_times, data['params']
 
 def load_latest_results_data(folder):
     """Load the latest test results from one folder
@@ -139,28 +142,32 @@ def load_all_results_data(folder, test_name, filters={}):
     """
     
     filenames_list = os.listdir(folder)
-    all_data = {"results":{}, "run_times":{}}
+    all_data = {"results":{}, "train_times":{}, "eval_times":{}}
  
  
     for filename in filenames_list:
         do_add_data = True
         tested_param = test_name
-        new_data = {"results":{}, "run_times":{}}
+        new_data = {"results":{}, "train_times":{}, "eval_times":{}}
   
         with open(folder+"/"+filename, 'r') as file:
             data = json.load(file)
+                            
             for param_key, param_value in data["params"].items():
                 if not (param_key in filters):
                     # No filter
                     if param_key == tested_param:
                         new_data["results"] = data["results"]
-                        new_data["run_times"] = data["run_times"]
+                        if "train_times" in data:
+                            new_data["train_times"] = data["train_times"]
+                        if "eval_times" in data:
+                            new_data["eval_times"] = data["eval_times"]
                     continue
                 
                 if type(filters[param_key]) != type([]) and type(filters[param_key]) != type({}):
                     filters[param_key] = [filters[param_key]]
 
-                if type(param_value) == type([]) and len(param_value)>0 and type(param_value[0]) == type([]):
+                if type(param_value) == type([]) and len(param_value) > 0 and type(param_value[0]) == type([]):
                     for i in range(len(param_value)):
                         param_value[i] = f"[{param_value[i][0]},{param_value[i][1]}]"
 
@@ -174,11 +181,19 @@ def load_all_results_data(folder, test_name, filters={}):
 
                 if param_key == tested_param:
                     for filter_value in filters[param_key]:
-                        if type(filter_value) == type(()) and (len(param_value)>0 and type(param_value[0]) == type("")):
+                        if type(filter_value) == type(()) and (len(param_value) == 2 and type(param_value[0]) == type("")):
                             filter_value = f"({filter_value[0]},{filter_value[1]})"
+                            
+                        if type(filter_value) == type([]) and len(filter_value) == 2:
+                            filter_value = f"[{filter_value[0]},{filter_value[1]}]"
+                            
                         if filter_value in param_value and str(filter_value) in data["results"]:
                             new_data["results"][filter_value] = data["results"][str(filter_value)]
-                            new_data["run_times"][filter_value] = data["run_times"][str(filter_value)]
+                                                        
+                            if "train_times" in data:
+                                new_data["train_times"][filter_value] = data["train_times"][str(filter_value)]
+                            if "eval_times" in data:
+                                new_data["eval_times"][filter_value] = data["eval_times"][str(filter_value)]
                 elif not (param_value in filters[param_key]):
                     do_add_data = False
                     break
@@ -190,28 +205,31 @@ def load_all_results_data(folder, test_name, filters={}):
                         all_data[output_type][key] = np.concatenate((all_data[output_type][key], new_data[output_type][key]))
                     else:
                         all_data[output_type][key] = new_data[output_type][key]
-    isSorted = False
+    isSorted = False   
     try:
         # Try to sort the keys if they are number
         all_data["results"] = dict(sorted(all_data["results"].items(), key=lambda x: float(x[0])))
-        all_data["run_times"] = dict(sorted(all_data["run_times"].items(), key=lambda x: float(x[0])))
+        all_data["train_times"] = dict(sorted(all_data["train_times"].items(), key=lambda x: float(x[0])))
+        all_data["eval_times"] = dict(sorted(all_data["eval_times"].items(), key=lambda x: float(x[0])))
         isSorted = True
     except:""
     if not isSorted:
         try:
             # Try to sort the keys if they are pairs of numbers (tuples or lists)
             all_data["results"] = dict(sorted(all_data["results"].items(), key=lambda x: (float(json.loads(x[0])[0]),float(json.loads(x[0])[1]))))
-            all_data["run_times"] = dict(sorted(all_data["run_times"].items(), key=lambda x: (float(json.loads(x[0])[0]),float(json.loads(x[0])[1]))))
+            all_data["train_times"] = dict(sorted(all_data["train_times"].items(), key=lambda x: (float(json.loads(x[0])[0]),float(json.loads(x[0])[1]))))
+            all_data["eval_times"] = dict(sorted(all_data["eval_times"].items(), key=lambda x: (float(json.loads(x[0])[0]),float(json.loads(x[0])[1]))))
             isSorted = True
         except:""
     if not isSorted:
         try:
             # Try to sort the keys if they are of another type (e.g strings)
             all_data["results"] = dict(sorted(all_data["results"].items(), key=lambda x: x[0]))
-            all_data["run_times"] = dict(sorted(all_data["run_times"].items(), key=lambda x: x[0]))
+            all_data["train_times"] = dict(sorted(all_data["train_times"].items(), key=lambda x: x[0]))
+            all_data["eval_times"] = dict(sorted(all_data["eval_times"].items(), key=lambda x: x[0]))
             isSorted = True
         except:""
-    return all_data['results'], all_data['run_times']
+    return all_data['results'], all_data["train_times"], all_data["eval_times"]
 
 
 #############################################
@@ -248,6 +266,12 @@ def create_scatter_line_plot(data, title, xlabel, ylabel, y_min = None, y_max = 
             xAll.append(xMean[i])
     yAll = np.concatenate(list(data.values()))
     
+    if len(data) > 0:
+        if(y_min is None):
+            y_min = min(yAll)
+        if(y_max is None):
+            y_max = max(yAll)
+    
     plt.figure(figsize=(8, 6))
     plt.ylim(y_min, y_max)
     plt.plot(xMean, yMean, marker='', linestyle='-')
@@ -274,7 +298,7 @@ def create_bar_plot(data, title, xlabel, ylabel, vertical_xticks=False, custom_x
         ylabel (string): Name of the y axis
         vertical_xticks (bool, optional): If True then the x values are vertical otherwise they are horizontal (useful for long text labels). Defaults to False.
         custom_xticks (list, optional): List of values for the x axis. If None then the keys in data are used. Defaults to None.
-    """   
+    """    
     resultsMeans = {}
 
     for key in data.keys():
@@ -283,6 +307,12 @@ def create_bar_plot(data, title, xlabel, ylabel, vertical_xticks=False, custom_x
 
     xMean = list(resultsMeans.keys())
     yMean = list(resultsMeans.values())
+    
+    if len(data) > 0:
+        if y_min is None:
+            y_min = 0
+        if y_max is None:
+            y_max = max(yMean)
     
     plt.figure(figsize=(11, 6))
     if vertical_xticks:
@@ -325,9 +355,24 @@ def create_boxplot(data, title, xlabel, ylabel, vertical_xticks=False, custom_xt
     """
     
     medians = {}
+    minY = float('+inf')
+    maxY = float('-inf')
     for key, value in data.items():
         medians[key] = np.median(value)
-
+        if len(value) > 0:
+            value_min = min(value)
+            value_max = max(value)
+            if value_min < minY:
+                minY = value_min
+            elif value_max > maxY:
+                maxY = value_max
+        
+    if len(data) > 0:
+        if y_min is None and minY != float('+inf'):
+            y_min = minY
+        if y_max is None and maxY != float('-inf'):
+            y_max = maxY
+    
     plt.figure(figsize=(8, 6))
     plt.ylim(y_min, y_max)
     plt.boxplot(data.values())
