@@ -7,23 +7,21 @@ else:
     device = torch.device("cpu")
 
 def get_tokenizer_and_model():
-    
-
     #Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
         "meta-llama/Llama-2-7b-chat-hf",
-        cache_dir="./saved_models/Llama-2-7b-chat-hf",
+        cache_dir="../saved_models/Llama-2-7b-chat-hf",
         token=True
     )
     
     #Load model
     model = AutoModelForCausalLM.from_pretrained(
         "meta-llama/Llama-2-7b-chat-hf",
-        cache_dir = "./saved_models/Llama-2-7b-chat-hf",
+        cache_dir = "../saved_models/Llama-2-7b-chat-hf",
         device_map = 'auto',
         token=True
     )
-    model.to(device)
+    #model.to(device)
     return tokenizer, model
 
 offload_buffers=True
@@ -32,7 +30,7 @@ USE_FLASH_ATTENTION=1
 
 #Get llama 2 limited answer
 def getAnswer(prompt, maxTokens, tokenizer, model):
-    inputs = tokenizer(prompt, return_tensors="pt").to(device)
+    inputs = tokenizer(prompt, return_tensors="pt")#.to(device)
     outputs = model.generate(**inputs, max_new_tokens=maxTokens)
 
     answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -69,7 +67,7 @@ def eval(test_set, tokenizer, model, support_set, verbose=False):
     
     progress = 0
     progress_temp = 0
-    progress_end = 10
+    progress_end = min(10,len(test_set))
     progress_step = max(len(test_set) // progress_end, 1)
     
     for i in range(len(test_set)):
@@ -83,13 +81,13 @@ def eval(test_set, tokenizer, model, support_set, verbose=False):
         prompt = support_set_prompt
         
         #Generation of the querry set
-        prompt += "\nCLASSIFY:" + test_set.iloc[i]["text"] + "\nANSWER:"
+        prompt += "\nCLASSIFY:" + test_set[i]["text"] + "\nANSWER:"
 
         #Getting Llama 2 answer
         answer = getAnswer(prompt, 2, tokenizer, model)
         # print(answer)
 
-        expected = int(test_set.iloc[i]["label"])
+        expected = int(test_set[i]["label"])
 
         #Saving llama 2 answers quality
         if (answer[-3:] == "Oui" or answer[-3:] =="es\n" or answer[-3:] == "Yes") and expected == 1:

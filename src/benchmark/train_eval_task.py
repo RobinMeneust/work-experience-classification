@@ -280,7 +280,7 @@ def llama2_f1_score(train_set, test_set, pipe, model_name=None, loss=None, dista
             
             tokenizer, model = llama2.get_tokenizer_and_model()
             
-            support_set = llama2.gen_support_set(len(train_set)//2, tokenizer, train_set) # TODO // 2 MUST BE CHANGED to // nbClasses if we want to work on multi class classification
+            support_set = llama2.gen_support_set(len(train_set)//2, train_set) # TODO // 2 MUST BE CHANGED to // nbClasses if we want to work on multi class classification
             
             start_time = time.time()
             f1_score = llama2.eval(test_set, tokenizer, model, support_set, True)

@@ -1,0 +1,1 @@
+{"results": {"1": [0.5]}, "train_times": {"1": [0]}, "eval_times": {"1": [136.75462174415588]}, "params": {"n_shot": [1], "n_iter": 1, "n_max_iter_per_shot": 1, "model": "meta-llama/Llama-2-7b-chat-hf", "loss": "UNKNOWN"}}
