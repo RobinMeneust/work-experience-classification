@@ -181,7 +181,7 @@ def load_all_results_data(folder, test_name, filters={}):
 
                 if param_key == tested_param:
                     for filter_value in filters[param_key]:
-                        if type(filter_value) == type(()) and (len(param_value) == 2 and type(param_value[0]) == type("")):
+                        if type(filter_value) == type(()) and (len(filter_value) == 2 and type(param_value[0]) == type("")):
                             filter_value = f"({filter_value[0]},{filter_value[1]})"
                             
                         if type(filter_value) == type([]) and len(filter_value) == 2:
@@ -305,7 +305,7 @@ def create_bar_plot(data, title, xlabel, ylabel, vertical_xticks=False, custom_x
         if len(data[key]) > 0:
             resultsMeans[key] = np.mean(data[key])
 
-    xMean = list(resultsMeans.keys())
+    xMean = list(map(str, resultsMeans.keys()))
     yMean = list(resultsMeans.values())
     
     if len(data) > 0:

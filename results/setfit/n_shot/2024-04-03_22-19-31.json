@@ -1,1 +1,0 @@
-{"results": {"2": [0.6377260981912145]}, "train_times": {"2": [1.9980037212371826]}, "eval_times": {"2": [20.102095127105713]}, "params": {"n_shot": [2], "n_iter": 1, "n_max_iter_per_shot": 1, "model": "sentence-transformers/paraphrase-mpnet-base-v2", "loss": "Triplet"}}
