@@ -572,10 +572,13 @@ def constant_params_tests(params, train_set, test_set, few_shot_model_f1_functio
     eval_times = []
     new_test_set = Dataset.from_pandas(test_set, split="test")
     progress = 0
+    progress_end = n_iter
+    start_time = time.time()
 
     for i in range(n_iter):
         progress += 1
-        print("Step:", progress, "/", n_iter)
+        print("Step:", progress, "/", progress_end,"Estimated remaining time:", get_remaining_time_str(start_time, progress, progress_end))
+
         if not (input_length_range is None):
             new_train_set = filter_dataset(train_set, input_length_range[0], input_length_range[1])
         else:
@@ -606,6 +609,7 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 import random
 
 nltk.download('wordnet')
+nltk.download('omw-1.4')
 
 def to_wordnet_pos(pos):
     if pos.startswith('J'):
@@ -853,7 +857,7 @@ def crossover(sentences_parent1, sentences_parent2, n_sections):
             i2 += chunk_len_parent2
             i_parent = 1-i_parent
     
-    return augmented_sentences
+    return ' '.join(augmented_sentences)
 
 def augment_crossover(data, n_new_samples_per_class, classes, strategy_params=None):
     """Augment a dataset with new samples using crossover
@@ -889,9 +893,7 @@ def augment_crossover(data, n_new_samples_per_class, classes, strategy_params=No
                 sentences_parent1 = sent_tokenize(filtered_rows.iloc[parent1]["text"])
                 sentences_parent2 = sent_tokenize(filtered_rows.iloc[parent2]["text"])
                 
-                augmented_sentences = crossover(sentences_parent1, sentences_parent2, n_sections)               
-
-                new_text = ' '.join(augmented_sentences)
+                new_text = crossover(sentences_parent1, sentences_parent2, n_sections)               
                 new_samples[c].append(new_text)
 
                 if len(new_samples[c]) >= n_new_samples_per_class:
@@ -973,6 +975,7 @@ def augment_back_translation(data, n_new_samples_per_class, classes):
             for t in new_texts:
                 if(len(new_samples[c]) >= n_new_samples_per_class):
                     break
+                progress += 1
                 print("Data augmentation... (", progress, "/", progress_end,")")
                 new_samples[c].append(t)
         except Exception as err:
