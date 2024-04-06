@@ -7,11 +7,13 @@ import torch
 import gc
 import os
 
+# Set device to GPU if available, else CPU
 if torch.cuda.is_available():    
     device = torch.device("cuda")
 else:
     device = torch.device("cpu")
-    
+
+ # Clear GPU cache, load and return the TARS model
 def get_tars_model():
     torch.cuda.empty_cache()
     gc.collect()
@@ -22,6 +24,7 @@ def get_tars_model():
         raise Exception("Flair model could not be loaded: ", str(e))
     return tars
 
+ # Evaluate TARS model on test set, return main score
 def eval(test_set, tars_model, verbose=False):
     tars_model.eval()
     test_sentences = [Sentence(text).add_label('class', str(label)) for text, label in zip(test_set['text'], test_set['label'])]
@@ -29,7 +32,7 @@ def eval(test_set, tars_model, verbose=False):
     result = tars_model.evaluate(test_sentences, gold_label_type='class', mini_batch_size=32)
     return result.main_score
 
-
+ # Train TARS model with train set, configure trainer, and save model
 def flair_train(train_set, tars_model, verbose=False):
     # Create Sentence objects for training and test
     train_sentences = [Sentence(text).add_label('class', str(label)) for text, label in zip(train_set['text'], train_set['label'])]
