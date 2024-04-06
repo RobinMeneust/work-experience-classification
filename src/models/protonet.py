@@ -9,6 +9,16 @@ else:
     device = torch.device("cpu")
     
 def get_tokenizer_and_model(model_name="google-bert/bert-base-multilingual-cased", ratio_frozen_weights=0.7):
+    """Download and return the tokenizer and the given model used for the embedding
+
+    Args:
+        model_name (str, optional): Name of the model to be downloaded. Defaults to "google-bert/bert-base-multilingual-cased".
+        ratio_frozen_weights (float, optional): Ratio of weights that will be frozen in the model (used to reduce training memory usage). Defaults to 0.7.
+
+    Returns:
+        any: Tokenizer loaded from the given name
+        any: Model loaded from the given name
+    """
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     embedding_model = AutoModel.from_pretrained(model_name)
     embedding_model.to(device)
@@ -21,6 +31,16 @@ def get_tokenizer_and_model(model_name="google-bert/bert-base-multilingual-cased
     return tokenizer, embedding_model
 
 def gen_tokenized_support_set(n_shots, tokenizer, dataset):
+    """Generate the support set but store the tokens instead of the raw text inputs
+
+    Args:
+        n_shots (int): Number of examples per class
+        tokenizer (any): Tokenizer used to generate the tokens from the texts
+        dataset (datasets.Dataset): Dataset containing examples that will be selected and tokenized
+
+    Returns:
+        dict: Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of tokenized sentences (one item of the list is one tokenized sentence)
+    """
     shuffled_dataset = dataset.shuffle(seed=42)
        
     support_set = {}
@@ -34,6 +54,15 @@ def gen_tokenized_support_set(n_shots, tokenizer, dataset):
     return support_set
 
 def get_prototypes_support_set(support_set, embedding_model):
+    """Generate the prototypes embeddings of the given support set using the provided embedding model
+
+    Args:
+        support_set (dict): Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of tokenized sentences (one item of the list is one tokenized sentence)
+        embedding_model (any): Embedding model used to vectorize the tokens in the support set
+
+    Returns:
+        dict: Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of embedding vectors
+    """
     prototypes_support_set = {}
     for t in support_set.keys():
         embeddings_support_set = []
@@ -44,6 +73,17 @@ def get_prototypes_support_set(support_set, embedding_model):
     return prototypes_support_set
 
 def predict(tokenizer, embedding_model, instance, support_set):
+    """Predict the class of the given instance
+
+    Args:
+        tokenizer (any): Tokenizer used to generate the tokens of the text input
+        embedding_model (any): Embedding model used to create the input embedding (that will be compared to the prototypes embeddings)
+        instance (string): Text input whose class will be determined
+        support_set (dict): Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of tokenized sentences (one item of the list is one tokenized sentence)
+
+    Returns:
+        number: Predicted label
+    """
     embedding_model.eval()
     encoded_input = tokenizer(instance, return_tensors='pt', truncation=True)
     encoded_input.to(device)
@@ -62,9 +102,19 @@ def predict(tokenizer, embedding_model, instance, support_set):
     return list(prototypes_support_set.keys())[torch.argmax(torch.stack(similarities))] # Take the closest element of all classes and return its class label
 
 
-def gen_batches(training_set, tokenizer, batch_size):
+def gen_batches(data, tokenizer, batch_size):
+    """Generate batches of tokenized texts
+
+    Args:
+        data (datasets.Dataset): Dataset from which batches are generated
+        tokenizer (any): Tokenizer used to generate the tokens of the text input
+        batch_size (int): Size of the batch to be generated (number of examples)
+
+    Returns:
+        list: List of tuples (tokenized texts, labels of the texts)
+    """
     batches = []
-    shuffled_set = training_set.shuffle()
+    shuffled_set = data.shuffle()
 
     nb_batches = len(shuffled_set) // batch_size
     if nb_batches == 0:
@@ -92,7 +142,19 @@ def gen_batches(training_set, tokenizer, batch_size):
 
 
 
-def eval(test_set, tokenizer, embedding_model, support_set, verbose=False):   
+def eval(test_set, tokenizer, embedding_model, support_set, verbose=False):
+    """Evaluate the ProtoNet model
+
+    Args:
+        test_set (datasets.Dataset): Test set
+        tokenizer (any): Tokenizer used to generate the tokens of the text input
+        embedding_model (any): Embedding model used to create the input embedding (that will be compared to the prototypes embeddings)
+        support_set (dict): Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of tokenized sentences (one item of the list is one tokenized sentence)
+        verbose (bool, optional): If true then more messages are displayed (progression). Defaults to False.
+
+    Returns:
+        number: F1-score
+    """
     embedding_model.eval()
 
     predictions = []
@@ -139,6 +201,21 @@ def eval(test_set, tokenizer, embedding_model, support_set, verbose=False):
 
 
 def protonet_train(support_set, train_set, tokenizer, embedding_model, num_epochs=20, batch_size=16, verbose=False):
+    """Train the given model
+
+    Args:
+        support_set (dict): Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of tokenized sentences (one item of the list is one tokenized sentence)
+        train_set (datasets.Dataset): _description_
+        tokenizer (any): Tokenizer used to generate the tokens of the text input
+        embedding_model (any): Embedding model used to create the input embedding (that will be compared to the prototypes embeddings)
+        num_epochs (int, optional): _description_. Defaults to 20.
+        batch_size (int, optional): _description_. Defaults to 16.
+        verbose (bool, optional): If true then more messages are displayed (progression...). Defaults to False.
+
+    Returns:
+        any: Trained model
+    """
+
     optimizer = torch.optim.AdamW(embedding_model.parameters(), lr=1e-5)
     torch.cuda.empty_cache()
     embedding_model.zero_grad()

@@ -15,7 +15,8 @@ def save_to_json(results, train_times, eval_times, params, folder_path):
         The filename of the save files are the current time, e.g. 2024-03-14_13-58-01
     Args:
         results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        train_times (dict): Training run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        eval_times (dict): Same as train_times but for the evaluation times
         params (dict): Parameters used for the test (N-shots, number of iterations, ...)
         folder_path (string): Path were the test file will be saved
     """
@@ -101,7 +102,8 @@ def load_results_data(filename, folder):
 
     Returns:
         dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Training run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Same as training times but for the evaluation times
         dict: Params of the test
     """
     with open(folder+"/"+filename, 'r') as file:
@@ -120,7 +122,8 @@ def load_latest_results_data(folder):
 
     Returns:
         dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Training run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Same as training times but for the evaluation times
         dict: Params of the test
     """
     filenames = os.listdir(folder)
@@ -137,8 +140,8 @@ def load_all_results_data(folder, test_name, filters={}):
 
     Returns:
         dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
-        dict: Params of the test
+        dict: Training run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Same as training times but for the evaluation times
     """
     
     filenames_list = os.listdir(folder)
@@ -246,6 +249,8 @@ def create_scatter_line_plot(data, title, xlabel, ylabel, y_min = None, y_max = 
         title (string): Title of the graph
         xlabel (string): Name of the x axis
         ylabel (string): Name of the y axis
+        y_min (number, optional): If specified the graph y axis will start at this value (bottom). Defaults to None.
+        y_max (number, optional): If specified the graph y axis will end at this value (top). Defaults to None.
     """
     resultsMeans = {}
 
@@ -298,6 +303,8 @@ def create_bar_plot(data, title, xlabel, ylabel, vertical_xticks=False, custom_x
         ylabel (string): Name of the y axis
         vertical_xticks (bool, optional): If True then the x values are vertical otherwise they are horizontal (useful for long text labels). Defaults to False.
         custom_xticks (list, optional): List of values for the x axis. If None then the keys in data are used. Defaults to None.
+        y_min (number, optional): If specified the graph y axis will start at this value (bottom). Defaults to None.
+        y_max (number, optional): If specified the graph y axis will end at this value (top). Defaults to None.
     """    
     resultsMeans = {}
 
@@ -352,6 +359,8 @@ def create_boxplot(data, title, xlabel, ylabel, vertical_xticks=False, custom_xt
         ylabel (string): Name of the y axis
         vertical_xticks (bool, optional): If True then the x values are vertical otherwise they are horizontal (useful for long text labels). Defaults to False.
         custom_xticks (list, optional): List of values for the x axis. If None then the keys in data are used. Defaults to None.
+        y_min (number, optional): If specified the graph y axis will start at this value (bottom). Defaults to None.
+        y_max (number, optional): If specified the graph y axis will end at this value (top). Defaults to None.
     """
     
     medians = {}
@@ -429,5 +438,14 @@ def split_dataset(dataset, ratio):
 #############################################   
 
 def get_n_shot_dataset(dataset, n_samples_per_class):
+    """Get a dataset with a given number of samples per class
+
+    Args:
+        dataset (pandas.DataFrame): _description_
+        n_samples_per_class (int): Number of samples per class
+
+    Returns:
+        pandas.DataFrame: New dataset
+    """
     new_dataset = dataset.groupby('label').head(n_samples_per_class)
     return new_dataset

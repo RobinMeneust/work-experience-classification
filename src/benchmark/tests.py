@@ -15,7 +15,7 @@ from benchmark.train_eval_task import run_test_job
 from langdetect import detect
 
 def filter_lang(data, lang):
-    """Only keep the rows in which the text column is in the given language
+    """Return the given dataframe with only rows in which the text column is in the given language
 
     Args:
         data (datasets.Dataset): Data to be filtered
@@ -69,16 +69,18 @@ def filter_dataset(data, min_text_length=None, max_text_length=None, lang=None):
 
 
 def n_shot_tests(params, train_set, test_set, few_shot_model_f1_function):
-    """Run a SetFit N-shots test
+    """Run a N-shots test
 
     Args:
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
+        few_shot_model_f1_function: Test function (return f1-score and running times) 
 
     Returns:
-        results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        dict: Training run times for each param variation (the keys are the same as the test results dict)
+        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_values = params["n_shot"]
@@ -140,16 +142,18 @@ def n_shot_tests(params, train_set, test_set, few_shot_model_f1_function):
 #############################################
 
 def input_length_tests(params, train_set, test_set, few_shot_model_f1_function):
-    """Run a SetFit input length test
+    """Run an input length test
 
     Args:
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
+        few_shot_model_f1_function: Test function (return f1-score and running times) 
 
     Returns:
-        results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        dict: Training run times for each param variation (the keys are the same as the test results dict)
+        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_shot = params["n_shot"]
@@ -202,16 +206,18 @@ def input_length_tests(params, train_set, test_set, few_shot_model_f1_function):
 
 
 def distance_tests(params, train_set, test_set, few_shot_model_f1_function):
-    """Run a SetFit distance test
+    """Run an distance test
 
     Args:
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
+        few_shot_model_f1_function: Test function (return f1-score and running times) 
 
     Returns:
-        results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        dict: Training run times for each param variation (the keys are the same as the test results dict)
+        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_shot = params["n_shot"]
@@ -265,16 +271,18 @@ def distance_tests(params, train_set, test_set, few_shot_model_f1_function):
 #############################################
 
 def loss_tests(params, train_set, test_set, few_shot_model_f1_function):
-    """Run a SetFit loss test
+    """Run an input loss function test
 
     Args:
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
+        few_shot_model_f1_function: Test function (return f1-score and running times) 
 
     Returns:
-        results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        dict: Training run times for each param variation (the keys are the same as the test results dict)
+        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     n_shot = params["n_shot"]
     n_iter = params["n_iter"]
@@ -325,16 +333,18 @@ def loss_tests(params, train_set, test_set, few_shot_model_f1_function):
 #############################################
 
 def language_tests(params, train_set, test_set, few_shot_model_f1_function):
-    """Run a SetFit language test
+    """Run an language test
 
     Args:
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
+        few_shot_model_f1_function: Test function (return f1-score and running times) 
 
     Returns:
-        results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        dict: Training run times for each param variation (the keys are the same as the test results dict)
+        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_shot = params["n_shot"]
@@ -421,16 +431,18 @@ def language_tests(params, train_set, test_set, few_shot_model_f1_function):
 #############################################
 
 def model_tests(params, train_set, test_set, few_shot_model_f1_function):
-    """Run a SetFit model test
+    """Run an embedding model test
 
     Args:
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
+        few_shot_model_f1_function: Test function (return f1-score and running times) 
 
     Returns:
-        results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        dict: Training run times for each param variation (the keys are the same as the test results dict)
+        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_shot = params["n_shot"]
@@ -483,16 +495,18 @@ def model_tests(params, train_set, test_set, few_shot_model_f1_function):
 #############################################
 
 def num_epochs_tests(params, train_set, test_set, few_shot_model_f1_function):
-    """Run a SetFit test on the number of epochs
+    """Run a test on the number of epochs
 
     Args:
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
+        few_shot_model_f1_function: Test function (return f1-score and running times) 
 
     Returns:
-        results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        dict: Training run times for each param variation (the keys are the same as the test results dict)
+        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     n_shot = params["n_shot"]
     n_iter = params["n_iter"]
@@ -547,16 +561,17 @@ def num_epochs_tests(params, train_set, test_set, few_shot_model_f1_function):
 #############################################
 
 def constant_params_tests(params, train_set, test_set, few_shot_model_f1_function):
-    """Run a SetFit test with constant parameters (but we still iterate multiple times to test with different training sets)
-
+    """Run a test with constant parameters (but we still repeat the test multiple times to test with different training sets)
     Args:
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
+        few_shot_model_f1_function: Test function (return f1-score and running times) 
 
     Returns:
-        results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        dict: Training run times for each param variation (the keys are the same as the test results dict)
+        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     n_shot = params["n_shot"]
     n_iter = params["n_iter"]
@@ -612,6 +627,14 @@ nltk.download('wordnet')
 nltk.download('omw-1.4')
 
 def to_wordnet_pos(pos):
+    """Convert NLTK part-of-speech (POS) tags to WordNet POS tags
+
+    Args:
+        pos (string): POS tag to be converted 
+
+    Returns:
+        string: New POS tag
+    """
     if pos.startswith('J'):
         return wordnet.ADJ
     elif pos.startswith('V'):
@@ -759,10 +782,10 @@ def gen_random_text_from_sentences(sentences, length):
 
     Args:
         sentences (list): List of sentences (strings) that are combined
-        length (_type_): _description_
+        length (int): Length of the new text
 
     Returns:
-        _type_: _description_
+        string: New text generated from the sentences
     """
     selected_sentences = []
     for _ in range(min(length,len(sentences))):
@@ -823,6 +846,9 @@ def crossover(sentences_parent1, sentences_parent2, n_sections):
         sentences_parent1 (list): List of sentences (strings) of the parent 1
         sentences_parent2 (list): List of sentences (strings) of the parent 2
         n_sections (int): Number of sections (e.g if it's 3 then the text of parent one (and 2) is split in 3)
+    
+    Returns:
+        string: New text generated from the two parents
     """
     chunk_len_parent1 = len(sentences_parent1) // n_sections + (1 if len(sentences_parent1) % n_sections != 0 else 0)
     chunk_len_parent2 = len(sentences_parent2) // n_sections + (1 if len(sentences_parent2) % n_sections != 0 else 0)
@@ -869,7 +895,7 @@ def augment_crossover(data, n_new_samples_per_class, classes, strategy_params=No
         strategy_params (dict): Parameters (e.g. n_points_crossover gives the number of points were we "cut" the samples).
 
     Returns:
-       dict : New generated samples. The key is the class labels and the value is the new text
+        dict : New generated samples. The key is the class labels and the value is the new text
     """
     n_points_crossover = floor(strategy_params["n_points_crossover"]) if not (strategy_params is None) and "n_points_crossover" in strategy_params else 1
     if n_points_crossover<0:
@@ -996,7 +1022,7 @@ def augment_back_translation(data, n_new_samples_per_class, classes):
 
 # Some methods come from: Li, Bohan, Yutai Hou, and Wanxiang Che. "Data augmentation approaches in natural language processing: A survey." Ai Open 3 (2022): 71-90.
 
-def augment_data(data, n_new_samples_per_class, classes, strategy='synonym', strategy_params = None):
+def augment_data(data, n_new_samples_per_class, classes, strategy='synonym_replacement', strategy_params = None):
     """Augment a dataset with new samples using the given strategy
 
     Args:
@@ -1039,16 +1065,18 @@ def augment_data(data, n_new_samples_per_class, classes, strategy='synonym', str
 # Function running the tests
 
 def data_augmentation_tests(params, train_set, test_set, few_shot_model_f1_function):
-    """Run a SetFit test for data augmentation
+    """Run a data augmentation test
 
     Args:
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
+        few_shot_model_f1_function: Test function (return f1-score and running times) 
 
     Returns:
-        results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        dict: Training run times for each param variation (the keys are the same as the test results dict)
+        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_shot = params["n_shot"]
@@ -1136,16 +1164,18 @@ def data_augmentation_tests(params, train_set, test_set, few_shot_model_f1_funct
 #############################################
 
 def frozen_ratio_tests(params, train_set, test_set, few_shot_model_f1_function):
-    """Run a SetFit frozen weights ratio test
+    """Run an frozen parameters test
 
     Args:
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
+        few_shot_model_f1_function: Test function (return f1-score and running times) 
 
     Returns:
-        results (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        run_times (dict): Run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        dict: Training run times for each param variation (the keys are the same as the test results dict)
+        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     n_shot = params["n_shot"]
     n_iter = params["n_iter"]

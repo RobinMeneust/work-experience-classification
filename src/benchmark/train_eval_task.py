@@ -94,13 +94,15 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
         num_epochs (tuple, optional): Number of epochs: (body_num_epochs, head_num_epochs). Defaults to None.
         batch_size (tuple, optional): Size of the batches: (body_batch_size, head_batch_size). Defaults to None.
         head_learning_rate (number, optional): Head learning rate. Defaults to None.
+        ratio_frozen_weights (number, optional): Ratio of weights that will be frozen in the given model for training (e.g. 0.75 if we freeze 75 % of it). Defaults to None.
 
     Raises:
-        Exception: If the training set or test set contain only one example, since at least are required by SetFit to create sentence pairs
+        Exception: If the training set or test set contain one example (or less), since at least 2 are required to create sentence pairs
 
     Returns:
         number: F1-score
-        number: Run time (training only)
+        number: Training run time
+        number: Evaluation run time
     """
     
     sys.stdout = PipeWriter(pipe)
@@ -164,6 +166,27 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
 
 # Run a test on protonet (training + evaluation)
 def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance_metric = None, num_epochs = None, batch_size = None, head_learning_rate = None, ratio_frozen_weights=None):
+    """Initialize and test a ProtoNet model with the given params
+
+    Args:
+        train_dataset (datasets.Dataset): Training set
+        test_dataset (datasets.Dataset): Test set
+        model_name (string): Name of the transformer to be fetched
+        loss (object): Loss function used (e.g. CosineSimilarityLoss)
+        distance_metric (object, optional): Distance used to compare a pair/triplet of embeddings. Defaults to None.
+        num_epochs (tuple, optional): Number of epochs: (body_num_epochs, head_num_epochs). Defaults to None.
+        batch_size (tuple, optional): Size of the batches: (body_batch_size, head_batch_size). Defaults to None.
+        head_learning_rate (number, optional): Head learning rate. Defaults to None.
+        ratio_frozen_weights (number, optional): Ratio of weights that will be frozen in the given model for training (e.g. 0.75 if we freeze 75 % of it). Defaults to None.
+
+    Raises:
+        Exception: If the training set or test set contain one example (or less), since at least 2 are required to create sentence pairs
+
+    Returns:
+        number: F1-score
+        number: Training run time
+        number: Evaluation run time
+    """
     sys.stdout = PipeWriter(pipe)
     
     f1_score = None
@@ -183,7 +206,7 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
                 num_epochs = (20,0)
             if batch_size is None:
                 batch_size = (4,0)
-            if ratio_frozen_weights is None:
+            if ratio_frozen_weights is None or ratio_frozen_weights < 0 or ratio_frozen_weights > 1:
                 ratio_frozen_weights = 0.7
             
             tokenizer, model = protonet.get_tokenizer_and_model(model_name, ratio_frozen_weights)
@@ -221,6 +244,27 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
 
 # Run a test on Flair (training + evaluation)
 def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distance_metric = None, num_epochs = None, batch_size = None, head_learning_rate = None, ratio_frozen_weights=None):
+    """Initialize and test the Flair model with the given params
+
+    Args:
+        train_dataset (datasets.Dataset): Training set
+        test_dataset (datasets.Dataset): Test set
+        model_name (string): Name of the transformer to be fetched
+        loss (object): Loss function used (e.g. CosineSimilarityLoss)
+        distance_metric (object, optional): Distance used to compare a pair/triplet of embeddings. Defaults to None.
+        num_epochs (tuple, optional): Number of epochs: (body_num_epochs, head_num_epochs). Defaults to None.
+        batch_size (tuple, optional): Size of the batches: (body_batch_size, head_batch_size). Defaults to None.
+        head_learning_rate (number, optional): Head learning rate. Defaults to None.
+        ratio_frozen_weights (number, optional): Ratio of weights that will be frozen in the given model for training (e.g. 0.75 if we freeze 75 % of it). Defaults to None.
+
+    Raises:
+        Exception: If the training set or test set contain one example (or less), since at least 2 are required to create sentence pairs
+
+    Returns:
+        number: F1-score
+        number: Training run time
+        number: Evaluation run time
+    """
     sys.stdout = PipeWriter(pipe)
     
     f1_score = None
@@ -237,7 +281,7 @@ def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distan
             model = flair.get_tars_model()
             
             start_time = time.time()
-            flair.flair_train(train_set, model, verbose=False)
+            flair.flair_train(train_set, model)
             train_time = time.time() - start_time
 
             start_time = time.time()
@@ -265,6 +309,27 @@ def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distan
 
 # Run a test on Llama2 (training + evaluation)
 def llama2_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distance_metric = None, num_epochs = None, batch_size = None, head_learning_rate = None, ratio_frozen_weights=None):
+    """Initialize and test Llama2 with the given params
+
+    Args:
+        train_dataset (datasets.Dataset): Training set
+        test_dataset (datasets.Dataset): Test set
+        model_name (string): Name of the transformer to be fetched
+        loss (object): Loss function used (e.g. CosineSimilarityLoss)
+        distance_metric (object, optional): Distance used to compare a pair/triplet of embeddings. Defaults to None.
+        num_epochs (tuple, optional): Number of epochs: (body_num_epochs, head_num_epochs). Defaults to None.
+        batch_size (tuple, optional): Size of the batches: (body_batch_size, head_batch_size). Defaults to None.
+        head_learning_rate (number, optional): Head learning rate. Defaults to None.
+        ratio_frozen_weights (number, optional): Ratio of weights that will be frozen in the given model for training (e.g. 0.75 if we freeze 75 % of it). Defaults to None.
+
+    Raises:
+        Exception: If the training set or test set contain one example (or less), since at least 2 are required to create sentence pairs
+
+    Returns:
+        number: F1-score
+        number: Training run time
+        number: Evaluation run time
+    """
     sys.stdout = PipeWriter(pipe)
     
     f1_score = None
@@ -309,6 +374,19 @@ def llama2_f1_score(train_set, test_set, pipe, model_name=None, loss=None, dista
 
 from torch.multiprocessing import set_start_method
 def run_test_job(target, kwargs=None):
+    """Run the given function with the given arguments in a separate process (so that the memory will be fred after the task ends)
+
+    Args:
+        target (function): Task to be executed
+        kwargs (dict, optional): Arguments passed to the task. Defaults to None.
+
+    Raises:
+        result: Re-raise the exception raised by the task function
+        Exception: Invalid values were returned by the task function
+
+    Returns:
+        tuple: Tuple (results, training run times, evaluation run times). Please refer to test function (in tests.py) for more information.
+    """
     try:
         set_start_method('spawn')
     except RuntimeError:

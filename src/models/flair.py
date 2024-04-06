@@ -32,7 +32,7 @@ def get_tars_model():
         raise Exception("Flair model could not be loaded: ", str(e))
     return tars
 
-def eval(test_set, tars_model, verbose=False):
+def eval(test_set, tars_model):
     """Evaluates TARS model on a test dataset.
 
     Converts the test set's texts and labels into Sentence objects and evaluates them using the TARS model.
@@ -40,7 +40,6 @@ def eval(test_set, tars_model, verbose=False):
     Args:
         test_set (dict): The test dataset containing 'text' and 'label' pairs.
         tars_model (TARSClassifier): The TARS model to evaluate.
-        verbose (bool, optional): Enables verbose output. Defaults to False.
 
     Returns:
         float: The main score from the evaluation.
@@ -51,7 +50,7 @@ def eval(test_set, tars_model, verbose=False):
     result = tars_model.evaluate(test_sentences, gold_label_type='class', mini_batch_size=32)
     return result.main_score
 
-def flair_train(train_set, tars_model, verbose=False):
+def flair_train(train_set, tars_model):
     """Trains the TARS model with a training set and saves the trained model.
 
     Configures the trainer, creates a new classification task, and starts the training process.
@@ -59,7 +58,6 @@ def flair_train(train_set, tars_model, verbose=False):
     Args:
         train_set (dict): The training dataset containing 'text' and 'label' pairs.
         tars_model (TARSClassifier): The TARS model to train.
-        verbose (bool, optional): Enables verbose output. Defaults to False.
 
     Returns:
         TARSClassifier: The trained TARS model.
