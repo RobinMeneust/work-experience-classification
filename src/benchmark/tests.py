@@ -609,6 +609,7 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 import random
 
 nltk.download('wordnet')
+nltk.download('omw-1.4')
 
 def to_wordnet_pos(pos):
     if pos.startswith('J'):
@@ -856,7 +857,7 @@ def crossover(sentences_parent1, sentences_parent2, n_sections):
             i2 += chunk_len_parent2
             i_parent = 1-i_parent
     
-    return augmented_sentences
+    return ' '.join(augmented_sentences)
 
 def augment_crossover(data, n_new_samples_per_class, classes, strategy_params=None):
     """Augment a dataset with new samples using crossover
@@ -892,9 +893,7 @@ def augment_crossover(data, n_new_samples_per_class, classes, strategy_params=No
                 sentences_parent1 = sent_tokenize(filtered_rows.iloc[parent1]["text"])
                 sentences_parent2 = sent_tokenize(filtered_rows.iloc[parent2]["text"])
                 
-                augmented_sentences = crossover(sentences_parent1, sentences_parent2, n_sections)               
-
-                new_text = ' '.join(augmented_sentences)
+                new_text = crossover(sentences_parent1, sentences_parent2, n_sections)               
                 new_samples[c].append(new_text)
 
                 if len(new_samples[c]) >= n_new_samples_per_class:
@@ -976,6 +975,7 @@ def augment_back_translation(data, n_new_samples_per_class, classes):
             for t in new_texts:
                 if(len(new_samples[c]) >= n_new_samples_per_class):
                     break
+                progress += 1
                 print("Data augmentation... (", progress, "/", progress_end,")")
                 new_samples[c].append(t)
         except Exception as err:
