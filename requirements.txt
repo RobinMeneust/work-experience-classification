@@ -13,3 +13,7 @@ sentencepiece
 flair
 nltk
 accelerate
+mkdocs
+mkdocstrings[python]
+mkdocs-material
+mkdocs-with-pdf

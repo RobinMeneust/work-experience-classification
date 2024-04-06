@@ -10,8 +10,8 @@ def get_tokenizer_and_model():
     """Initialization of llama 2
 
     Returns:
-        tokenizer: llama 2 tokenizer
-        model: llama 2 model
+        (any): llama 2 tokenizer
+        (any): llama 2 model
     """
     #Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
@@ -39,13 +39,13 @@ def getAnswer(prompt, maxTokens, tokenizer, model):
     """Generate llama 2 answer for category of query set
 
     Args:
-        prompt: Concatenation of support set and query set
-        maxTokens: number of tokens llama 2 will use to answer
-        tokenizer: llama 2 tokenizer
-        model: llama 2 model
+        prompt (string): Concatenation of support set and query set
+        maxTokens (number): number of tokens llama 2 will use to answer
+        tokenizer (any): llama 2 tokenizer
+        model (any): llama 2 model
 
     Returns:
-        answer: The concatenation of the support set, the query set and the answer of llama 2
+        (string): The concatenation of the support set, the query set and the answer of llama 2
     """
     inputs = tokenizer(prompt, return_tensors="pt")#.to(device)
     outputs = model.generate(**inputs, max_new_tokens=maxTokens)
@@ -58,12 +58,12 @@ def f1Score(tp, fp, fn):
     """Computes f1Score based of llama 2's answers
 
     Args:
-        tp: Number of true positives
-        fp: Number of false positives
-        fn: Number of false negatives
+        tp (number): Number of true positives
+        fp (number): Number of false positives
+        fn (number): Number of false negatives
 
     Returns:
-        (2*tp) / (2*(tp+fp+fn)): f1 score equation
+        (number):  F1-score = (2*tp) / (2*(tp+fp+fn))
     """
     return (2*tp) / (2*(tp+fp+fn))
 
@@ -71,11 +71,11 @@ def gen_support_set(n_shots, dataset):
     """Generate the support set on which llama 2 will base its answer from
 
     Args:
-        n_shots: integer for the loop and the number of wanted examples per class
-        dataset: dataset containing every experience
+        n_shots (number): integer for the loop and the number of wanted examples per class
+        dataset (datasets.Dataset): dataset containing every experience
 
     Returns:
-        support_set: A string containing a concatenation of the different n examples per class
+        (dict): Support set. A string containing a concatenation of the different n examples per class
     """
     shuffled_dataset = dataset.shuffle(seed=42)
     support_set = {}
@@ -91,13 +91,13 @@ def eval(test_set, tokenizer, model, support_set, verbose=False):
     """Test llama 2's answer based on the information provided by the dataset
 
     Args:
-        test_set: query set containing an example without the answer
-        tokenizer: llama 2 tokenizer
-        model: llama 2 model
-        support_set: A string containing a concatenation of the different n examples per class
+        test_set (datasets.Dataset): query set containing an example without the answer
+        tokenizer (any): llama 2 tokenizer
+        model (any): llama 2 model
+        support_set (dict): Support set. N texts per classes for a N-shot support set
 
     Returns:
-        support_set: string of the support set
+        (number): F1-score
     """
     truePositive = 0
     trueNegative = 0

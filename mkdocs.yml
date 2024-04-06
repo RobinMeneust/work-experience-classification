@@ -1,0 +1,33 @@
+site_name: LinkedIn Few-Shot Learning Project - Docs
+site_author: Estéban DARTUS, Nino HAMEL, Robin MENEUST, Jérémy SAELEN, Mathis TEMPO
+copyright: ""
+
+extra_css:
+  - css/custom.css
+
+theme:
+ name: "material"
+
+
+plugins:
+  - search
+  - mkdocstrings
+  - with-pdf:
+      cover_subtitle: ""
+      enabled_if_env: ENABLE_PDF_EXPORT
+
+markdown_extensions:
+  - codehilite:
+      enabled: false
+
+nav:
+  - LinkedIn Few-Shot Learning: index.md
+  - Tests functions: tests.md
+  - Training and evaluation tasks: train_eval_task.md
+  - Utility functions: utility.md
+  - Flair functions: flair.md
+  - Llama2 functions: llama2.md
+  - ProtoNet functions: protonet.md
+
+watch:
+  - src

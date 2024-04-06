@@ -23,7 +23,7 @@ def get_setfit_model(model_name, device, use_differentiable_head=False):
         use_differentiable_head (bool, optional): False if we want to use the default Logistic classification head and false if we want to use the PyTorch's one (needed for multiclass classification). Defaults to False.
 
     Returns:
-        SetFitModel : SetFit model created with the given transformer
+        (SetFitModel): SetFit model created with the given transformer
     """
     model = SetFitModel.from_pretrained(model_name, use_differentiable_head=use_differentiable_head)
     gc.collect()
@@ -86,8 +86,8 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
     """Initialize and test a SetFit model with the given params
 
     Args:
-        train_dataset (datasets.Dataset): Training set
-        test_dataset (datasets.Dataset): Test set
+        train_set (datasets.Dataset): Training set
+        test_set (datasets.Dataset): Test set
         model_name (string): Name of the transformer to be fetched
         loss (object): Loss function used (e.g. CosineSimilarityLoss)
         distance_metric (object, optional): Distance used to compare a pair/triplet of embeddings. Defaults to None.
@@ -100,9 +100,9 @@ def setfit_f1_score(train_set, test_set, model_name, loss, pipe, distance_metric
         Exception: If the training set or test set contain one example (or less), since at least 2 are required to create sentence pairs
 
     Returns:
-        number: F1-score
-        number: Training run time
-        number: Evaluation run time
+        (number): F1-score
+        (number): Training run time
+        (number): Evaluation run time
     """
     
     sys.stdout = PipeWriter(pipe)
@@ -169,8 +169,8 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
     """Initialize and test a ProtoNet model with the given params
 
     Args:
-        train_dataset (datasets.Dataset): Training set
-        test_dataset (datasets.Dataset): Test set
+        train_set (datasets.Dataset): Training set
+        test_set (datasets.Dataset): Test set
         model_name (string): Name of the transformer to be fetched
         loss (object): Loss function used (e.g. CosineSimilarityLoss)
         distance_metric (object, optional): Distance used to compare a pair/triplet of embeddings. Defaults to None.
@@ -183,9 +183,9 @@ def protonet_f1_score(train_set, test_set, pipe, model_name, loss=None, distance
         Exception: If the training set or test set contain one example (or less), since at least 2 are required to create sentence pairs
 
     Returns:
-        number: F1-score
-        number: Training run time
-        number: Evaluation run time
+        (number): F1-score
+        (number): Training run time
+        (number): Evaluation run time
     """
     sys.stdout = PipeWriter(pipe)
     
@@ -247,8 +247,8 @@ def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distan
     """Initialize and test the Flair model with the given params
 
     Args:
-        train_dataset (datasets.Dataset): Training set
-        test_dataset (datasets.Dataset): Test set
+        train_set (datasets.Dataset): Training set
+        test_set (datasets.Dataset): Test set
         model_name (string): Name of the transformer to be fetched
         loss (object): Loss function used (e.g. CosineSimilarityLoss)
         distance_metric (object, optional): Distance used to compare a pair/triplet of embeddings. Defaults to None.
@@ -261,9 +261,9 @@ def flair_f1_score(train_set, test_set, pipe, model_name=None, loss=None, distan
         Exception: If the training set or test set contain one example (or less), since at least 2 are required to create sentence pairs
 
     Returns:
-        number: F1-score
-        number: Training run time
-        number: Evaluation run time
+        (number): F1-score
+        (number): Training run time
+        (number): Evaluation run time
     """
     sys.stdout = PipeWriter(pipe)
     
@@ -312,8 +312,8 @@ def llama2_f1_score(train_set, test_set, pipe, model_name=None, loss=None, dista
     """Initialize and test Llama2 with the given params
 
     Args:
-        train_dataset (datasets.Dataset): Training set
-        test_dataset (datasets.Dataset): Test set
+        train_set (datasets.Dataset): Training set
+        test_set (datasets.Dataset): Test set
         model_name (string): Name of the transformer to be fetched
         loss (object): Loss function used (e.g. CosineSimilarityLoss)
         distance_metric (object, optional): Distance used to compare a pair/triplet of embeddings. Defaults to None.
@@ -326,9 +326,9 @@ def llama2_f1_score(train_set, test_set, pipe, model_name=None, loss=None, dista
         Exception: If the training set or test set contain one example (or less), since at least 2 are required to create sentence pairs
 
     Returns:
-        number: F1-score
-        number: Training run time
-        number: Evaluation run time
+        (number): F1-score
+        (number): Training run time
+        (number): Evaluation run time
     """
     sys.stdout = PipeWriter(pipe)
     
@@ -385,7 +385,7 @@ def run_test_job(target, kwargs=None):
         Exception: Invalid values were returned by the task function
 
     Returns:
-        tuple: Tuple (results, training run times, evaluation run times). Please refer to test function (in tests.py) for more information.
+        (Tuple): Tuple (results, training run times, evaluation run times). Please refer to test function (in tests.py) for more information.
     """
     try:
         set_start_method('spawn')

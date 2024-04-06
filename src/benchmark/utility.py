@@ -75,7 +75,7 @@ def get_remaining_time_str(start_time, progress, progress_end):
         progress_end (int): Number of iterations
 
     Returns:
-        string: String representing the estimated remaining time in minutes (if at least 60 s) or in seconds
+        (string): String representing the estimated remaining time in minutes (if at least 60 s) or in seconds
     """
     elapsed_time = time.time() - start_time
     if progress <= 1:
@@ -101,10 +101,10 @@ def load_results_data(filename, folder):
         folder (string): Name of the folder where the file is
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
-        dict: Same as training times but for the evaluation times
-        dict: Params of the test
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        (dict): Same as training times but for the evaluation times
+        (dict): Params of the test
     """
     with open(folder+"/"+filename, 'r') as file:
         data = json.load(file)
@@ -121,10 +121,10 @@ def load_latest_results_data(folder):
         folder (string): Name of the folder where the file is
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
-        dict: Same as training times but for the evaluation times
-        dict: Params of the test
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        (dict): Same as training times but for the evaluation times
+        (dict): Params of the test
     """
     filenames = os.listdir(folder)
     latest = max(filenames, key=lambda x: os.path.getmtime(os.path.join(folder, x)))
@@ -139,9 +139,9 @@ def load_all_results_data(folder, test_name, filters={}):
         filters (dict, optional): Search filters (e.g {"n_max_iter_per_shot": 10}). Defaults to {}.
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
-        dict: Same as training times but for the evaluation times
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of the training run times)
+        (dict): Same as training times but for the evaluation times
     """
     
     filenames_list = os.listdir(folder)
@@ -422,7 +422,7 @@ def split_dataset(dataset, ratio):
     """Split a dataset in two parts
 
     Args:
-        dataset (pandas.DataFrame)
+        dataset (pandas.DataFrame): Dataset that is being split
         ratio (integer): Ratio of the size of the first subset compared to the whole dataset
 
     Returns:
@@ -445,7 +445,7 @@ def get_n_shot_dataset(dataset, n_samples_per_class):
         n_samples_per_class (int): Number of samples per class
 
     Returns:
-        pandas.DataFrame: New dataset
+        (pandas.DataFrame): New dataset
     """
     new_dataset = dataset.groupby('label').head(n_samples_per_class)
     return new_dataset

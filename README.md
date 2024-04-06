@@ -54,6 +54,32 @@ Run `quickstart.bat` on Windows and `quickstart.sh` on Linux
     1. Ask permission to fetch the model from HuggingFace (check https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/tree/main)
     2. Be logged in to HuggingFace on this computer (your HuggingFace token must be saved on your computer). To do so you can use the notebook `login_huggingface.ipynb`.
 
+## Documentation
+
+### Requirements (already in requirements.txt)
+
+- mkdocs
+- mkdocstrings[python]
+- mkdocs-material
+- mkdocs-with-pdf
+
+### Other requirements
+
+On Windows you might also need to install GTK3 (https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases)
+
+
+### Generation
+
+To generate the doc (HTML):
+- Use `mkdocs build` to build the docs files. The files created will be in the folder "site".
+
+To generate the doc and start a local server on localhost
+- Run `mkdocs serve` and open your browser at the diplayed URL
+
+To generate the PDF Doc in site/pdf use :
+- Linux: `ENABLE_PDF_EXPORT=1 mkdocs build`
+- Windows: Or `set ENABLE_PDF_EXPORT=1` and then `mkdocs build`
+
 ## Authors
 
 - Estéban DARTUS

@@ -16,8 +16,8 @@ def get_tokenizer_and_model(model_name="google-bert/bert-base-multilingual-cased
         ratio_frozen_weights (float, optional): Ratio of weights that will be frozen in the model (used to reduce training memory usage). Defaults to 0.7.
 
     Returns:
-        any: Tokenizer loaded from the given name
-        any: Model loaded from the given name
+        (any): Tokenizer loaded from the given name
+        (any): Model loaded from the given name
     """
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     embedding_model = AutoModel.from_pretrained(model_name)
@@ -39,7 +39,7 @@ def gen_tokenized_support_set(n_shots, tokenizer, dataset):
         dataset (datasets.Dataset): Dataset containing examples that will be selected and tokenized
 
     Returns:
-        dict: Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of tokenized sentences (one item of the list is one tokenized sentence)
+        (dict): Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of tokenized sentences (one item of the list is one tokenized sentence)
     """
     shuffled_dataset = dataset.shuffle(seed=42)
        
@@ -61,7 +61,7 @@ def get_prototypes_support_set(support_set, embedding_model):
         embedding_model (any): Embedding model used to vectorize the tokens in the support set
 
     Returns:
-        dict: Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of embedding vectors
+        (dict): Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of embedding vectors
     """
     prototypes_support_set = {}
     for t in support_set.keys():
@@ -82,7 +82,7 @@ def predict(tokenizer, embedding_model, instance, support_set):
         support_set (dict): Dictionnary whose keys are the classes value (e.g. 0, 1) and whose values are the list of tokenized sentences (one item of the list is one tokenized sentence)
 
     Returns:
-        number: Predicted label
+        (number): Predicted label
     """
     embedding_model.eval()
     encoded_input = tokenizer(instance, return_tensors='pt', truncation=True)
@@ -111,7 +111,7 @@ def gen_batches(data, tokenizer, batch_size):
         batch_size (int): Size of the batch to be generated (number of examples)
 
     Returns:
-        list: List of tuples (tokenized texts, labels of the texts)
+        (list): List of tuples (tokenized texts, labels of the texts)
     """
     batches = []
     shuffled_set = data.shuffle()
@@ -153,7 +153,7 @@ def eval(test_set, tokenizer, embedding_model, support_set, verbose=False):
         verbose (bool, optional): If true then more messages are displayed (progression). Defaults to False.
 
     Returns:
-        number: F1-score
+        (number): F1-score
     """
     embedding_model.eval()
 
@@ -213,7 +213,7 @@ def protonet_train(support_set, train_set, tokenizer, embedding_model, num_epoch
         verbose (bool, optional): If true then more messages are displayed (progression...). Defaults to False.
 
     Returns:
-        any: Trained model
+        (any): Trained model
     """
 
     optimizer = torch.optim.AdamW(embedding_model.parameters(), lr=1e-5)

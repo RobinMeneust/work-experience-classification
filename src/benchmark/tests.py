@@ -22,7 +22,7 @@ def filter_lang(data, lang):
         lang (string): Language used to filter the data (e.g. 'fr' or 'en')
 
     Returns:
-        datasets.Dataset: Filtered data
+        (datasets.Dataset): Filtered data
     """
     indices = []
     for i in range(len(data)):
@@ -44,7 +44,7 @@ def filter_dataset(data, min_text_length=None, max_text_length=None, lang=None):
         lang (string, optional): Language used to filter the data (e.g. 'fr' or 'en'). If it's None there is no filter. Defaults to None.
 
     Returns:
-        datasets.Dataset: Filtered dataset
+        (datasets.Dataset): Filtered dataset
     """
     if min_text_length is None:
         if max_text_length is None:
@@ -75,12 +75,12 @@ def n_shot_tests(params, train_set, test_set, few_shot_model_f1_function):
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
-        few_shot_model_f1_function: Test function (return f1-score and running times) 
+        few_shot_model_f1_function (any): Test function (return f1-score and running times) 
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (the keys are the same as the test results dict)
-        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (the keys are the same as the test results dict)
+        (dict): Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_values = params["n_shot"]
@@ -148,12 +148,12 @@ def input_length_tests(params, train_set, test_set, few_shot_model_f1_function):
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
-        few_shot_model_f1_function: Test function (return f1-score and running times) 
+        few_shot_model_f1_function (any):Test function (return f1-score and running times) 
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (the keys are the same as the test results dict)
-        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (the keys are the same as the test results dict)
+        (dict): Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_shot = params["n_shot"]
@@ -212,12 +212,12 @@ def distance_tests(params, train_set, test_set, few_shot_model_f1_function):
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
-        few_shot_model_f1_function: Test function (return f1-score and running times) 
+        few_shot_model_f1_function (any):Test function (return f1-score and running times) 
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (the keys are the same as the test results dict)
-        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (the keys are the same as the test results dict)
+        (dict): Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_shot = params["n_shot"]
@@ -277,12 +277,12 @@ def loss_tests(params, train_set, test_set, few_shot_model_f1_function):
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
-        few_shot_model_f1_function: Test function (return f1-score and running times) 
+        few_shot_model_f1_function (any):Test function (return f1-score and running times) 
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (the keys are the same as the test results dict)
-        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (the keys are the same as the test results dict)
+        (dict): Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     n_shot = params["n_shot"]
     n_iter = params["n_iter"]
@@ -339,12 +339,12 @@ def language_tests(params, train_set, test_set, few_shot_model_f1_function):
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
-        few_shot_model_f1_function: Test function (return f1-score and running times) 
+        few_shot_model_f1_function (any):Test function (return f1-score and running times) 
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (the keys are the same as the test results dict)
-        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (the keys are the same as the test results dict)
+        (dict): Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_shot = params["n_shot"]
@@ -437,12 +437,12 @@ def model_tests(params, train_set, test_set, few_shot_model_f1_function):
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
-        few_shot_model_f1_function: Test function (return f1-score and running times) 
+        few_shot_model_f1_function (any):Test function (return f1-score and running times) 
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (the keys are the same as the test results dict)
-        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (the keys are the same as the test results dict)
+        (dict): Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_shot = params["n_shot"]
@@ -501,12 +501,12 @@ def num_epochs_tests(params, train_set, test_set, few_shot_model_f1_function):
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
-        few_shot_model_f1_function: Test function (return f1-score and running times) 
+        few_shot_model_f1_function (any): Test function (return f1-score and running times) 
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (the keys are the same as the test results dict)
-        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (the keys are the same as the test results dict)
+        (dict): Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     n_shot = params["n_shot"]
     n_iter = params["n_iter"]
@@ -566,12 +566,12 @@ def constant_params_tests(params, train_set, test_set, few_shot_model_f1_functio
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
-        few_shot_model_f1_function: Test function (return f1-score and running times) 
+        few_shot_model_f1_function (any):Test function (return f1-score and running times) 
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (the keys are the same as the test results dict)
-        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (the keys are the same as the test results dict)
+        (dict): Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     n_shot = params["n_shot"]
     n_iter = params["n_iter"]
@@ -633,7 +633,7 @@ def to_wordnet_pos(pos):
         pos (string): POS tag to be converted 
 
     Returns:
-        string: New POS tag
+        (string): New POS tag
     """
     if pos.startswith('J'):
         return wordnet.ADJ
@@ -655,7 +655,7 @@ def get_synonyms(word, pos, lang):
         lang (string): Language of the word (e.g. 'fr' or 'en')
 
     Returns:
-        list: List of synonyms (strings)
+        (list): List of synonyms (strings)
     """
     l = 'fra' if lang == 'fr' else 'eng'
     synonyms=[synset.lemma_names(l) for synset in wordnet.synsets(word, pos=to_wordnet_pos(pos), lang=l)]
@@ -677,7 +677,7 @@ def replace_with_synonym(word, pos, lang):
         lang (string): Language of the word (e.g. 'fr' or 'en')
 
     Returns:
-        string: New word
+        (string): New word
     """
     synonyms = get_synonyms(word, pos, lang)
     if synonyms:
@@ -697,7 +697,7 @@ def apply_synonym_replacement_to_text(text, lang, params=None):
         Exception: If the parameters are invalid (e.g. modification_rate (float) not in [0,1])
 
     Returns:
-        string: Text modified with synonyms
+        (string): Text modified with synonyms
     """
     modification_rate = 1
     if not (params is None) and "modification_rate" in params :
@@ -737,7 +737,7 @@ def augment_synonym_replacement(data, n_new_samples_per_class, classes, strategy
         strategy_params (dict): Parameters of the replacement (e.g. modification_rate gives the probability for each word to be replaced).
 
     Returns:
-       dict : New generated samples. The key is the class labels and the value is the new text
+       (dict): New generated samples. The key is the class labels and the value is the new text
     """
     progress = 0
     progress_end = n_new_samples_per_class * len(classes)
@@ -785,7 +785,7 @@ def gen_random_text_from_sentences(sentences, length):
         length (int): Length of the new text
 
     Returns:
-        string: New text generated from the sentences
+        (string): New text generated from the sentences
     """
     selected_sentences = []
     for _ in range(min(length,len(sentences))):
@@ -805,7 +805,7 @@ def augment_swapping_inter(data, n_new_samples_per_class, classes):
         classes (list): List of class labels (e.g [0,1])
 
     Returns:
-       dict : New generated samples. The key is the class labels and the value is the new text
+       (dict): New generated samples. The key is the class labels and the value is the new text
     """
     progress = 0
     progress_end = n_new_samples_per_class * len(classes)
@@ -848,7 +848,7 @@ def crossover(sentences_parent1, sentences_parent2, n_sections):
         n_sections (int): Number of sections (e.g if it's 3 then the text of parent one (and 2) is split in 3)
     
     Returns:
-        string: New text generated from the two parents
+        (string): New text generated from the two parents
     """
     chunk_len_parent1 = len(sentences_parent1) // n_sections + (1 if len(sentences_parent1) % n_sections != 0 else 0)
     chunk_len_parent2 = len(sentences_parent2) // n_sections + (1 if len(sentences_parent2) % n_sections != 0 else 0)
@@ -895,7 +895,7 @@ def augment_crossover(data, n_new_samples_per_class, classes, strategy_params=No
         strategy_params (dict): Parameters (e.g. n_points_crossover gives the number of points were we "cut" the samples).
 
     Returns:
-        dict : New generated samples. The key is the class labels and the value is the new text
+        (dict): New generated samples. The key is the class labels and the value is the new text
     """
     n_points_crossover = floor(strategy_params["n_points_crossover"]) if not (strategy_params is None) and "n_points_crossover" in strategy_params else 1
     if n_points_crossover<0:
@@ -946,7 +946,7 @@ def back_translate(text, model_fr_en, tokenizer_fr_en, model_en_fr, tokenizer_en
         Exception: If the language could not be detected
 
     Returns:
-        list: List of texts back translated from the given one
+        (list): List of texts back translated from the given one
     """
     l = detect(text)
     if l == 'fr':
@@ -972,7 +972,7 @@ def augment_back_translation(data, n_new_samples_per_class, classes):
         classes (list): List of class labels (e.g [0,1])
 
     Returns:
-       dict : New generated samples. The key is the class labels and the value is the new text
+       (dict): New generated samples. The key is the class labels and the value is the new text
     """
     model_name_fr_en = "Helsinki-NLP/opus-mt-fr-en"
     model_name_en_fr = "Helsinki-NLP/opus-mt-en-fr"
@@ -1036,7 +1036,7 @@ def augment_data(data, n_new_samples_per_class, classes, strategy='synonym_repla
         Exception: If the strategy name is invalid
 
     Returns:
-       datasets.Dataset : Augmented dataset
+        (datasets.Dataset): Augmented dataset
     """
     
     if n_new_samples_per_class <= 0:
@@ -1071,12 +1071,12 @@ def data_augmentation_tests(params, train_set, test_set, few_shot_model_f1_funct
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
-        few_shot_model_f1_function: Test function (return f1-score and running times) 
+        few_shot_model_f1_function (any):Test function (return f1-score and running times) 
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (the keys are the same as the test results dict)
-        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (the keys are the same as the test results dict)
+        (dict): Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     
     n_shot = params["n_shot"]
@@ -1170,12 +1170,12 @@ def frozen_ratio_tests(params, train_set, test_set, few_shot_model_f1_function):
         params (dict): Test parameters (number of iterations...)
         train_set (datasets.Dataset): Training set
         test_set (datasets.Dataset): Test set
-        few_shot_model_f1_function: Test function (return f1-score and running times) 
+        few_shot_model_f1_function (any):Test function (return f1-score and running times) 
 
     Returns:
-        dict: Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
-        dict: Training run times for each param variation (the keys are the same as the test results dict)
-        dict: Evaluation run times for each param variation (the keys are the same as the test results dict)
+        (dict): Test results (F1-scores) for each param variation (e.g. for the N-shots test the keys of the dict might be 3, 5, 10 and for each the value associated to it is an array of F1-scores)
+        (dict): Training run times for each param variation (the keys are the same as the test results dict)
+        (dict): Evaluation run times for each param variation (the keys are the same as the test results dict)
     """
     n_shot = params["n_shot"]
     n_iter = params["n_iter"]

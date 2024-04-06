@@ -19,7 +19,7 @@ def get_tars_model():
     Attempts to load the 'tars-base' model. If unsuccessful, raises an exception.
 
     Returns:
-        TARSClassifier: The loaded TARS model.
+        (TARSClassifier): The loaded TARS model.
 
     Raises:
         Exception: If the TARS model could not be loaded.
@@ -42,7 +42,7 @@ def eval(test_set, tars_model):
         tars_model (TARSClassifier): The TARS model to evaluate.
 
     Returns:
-        float: The main score from the evaluation.
+        (float): The main score from the evaluation.
     """
     tars_model.eval()
     test_sentences = [Sentence(text).add_label('class', str(label)) for text, label in zip(test_set['text'], test_set['label'])]
@@ -60,7 +60,7 @@ def flair_train(train_set, tars_model):
         tars_model (TARSClassifier): The TARS model to train.
 
     Returns:
-        TARSClassifier: The trained TARS model.
+        (TARSClassifier): The trained TARS model.
     """
     # Create Sentence objects for training and test
     train_sentences = [Sentence(text).add_label('class', str(label)) for text, label in zip(train_set['text'], train_set['label'])]
