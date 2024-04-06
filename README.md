@@ -14,7 +14,7 @@ Install CUDA 12.1.1 at https://developer.nvidia.com/cuda-toolkit-archive
 
 For Linux only (not available on Windows).
 
-**Note**: This isn't garanteed to work since we couldn't test it.
+**Note**: This isn't guaranteed to work since we couldn't test it.
 
 
 1. Install ROCm 5.7.0. Follow the instructions here: https://rocm.docs.amd.com/en/docs-5.7.0/deploy/linux/os-native/install.html

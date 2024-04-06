@@ -11,3 +11,4 @@ torcheval
 sentencepiece
 flair
 nltk
+accelerate

@@ -572,10 +572,13 @@ def constant_params_tests(params, train_set, test_set, few_shot_model_f1_functio
     eval_times = []
     new_test_set = Dataset.from_pandas(test_set, split="test")
     progress = 0
+    progress_end = n_iter
+    start_time = time.time()
 
     for i in range(n_iter):
         progress += 1
-        print("Step:", progress, "/", n_iter)
+        print("Step:", progress, "/", progress_end,"Estimated remaining time:", get_remaining_time_str(start_time, progress, progress_end))
+
         if not (input_length_range is None):
             new_train_set = filter_dataset(train_set, input_length_range[0], input_length_range[1])
         else:
