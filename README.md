@@ -53,6 +53,7 @@ Run `quickstart.bat` on Windows and `quickstart.sh` on Linux
 - For Llama2, you need to do the following:
     1. Ask permission to fetch the model from HuggingFace (check https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/tree/main)
     2. Be logged in to HuggingFace on this computer (your HuggingFace token must be saved on your computer). To do so you can use the notebook `login_huggingface.ipynb`.
+- You should also avoid putting this project in a path with spaces or special characters. If you encounter any error you might want to try to put this project somewhere else and re-intall it.
 
 ## Documentation
 
