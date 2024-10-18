@@ -1,6 +1,6 @@
-# linkedin-work-experience-classification
+# Work-experience-classification
 
-Classify work experience from Linkedin using a few-shot learning AI model
+Classify work experience using a few-shot learning AI model
 
 ## How to use the GPU
 

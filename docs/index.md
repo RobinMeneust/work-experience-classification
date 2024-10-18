@@ -1,4 +1,4 @@
-This site contains project documentation for a `Few-shot Learning Project on LinkedIn data`
+This site contains project documentation for a `Few-shot Learning Project`
 
 [This documentation was built with MkDocs](
     https://realpython.com/python-project-documentation-with-mkdocs/).

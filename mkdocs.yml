@@ -1,4 +1,4 @@
-site_name: LinkedIn Few-Shot Learning Project - Docs
+site_name: Few-Shot Learning Project - Docs
 site_author: Estéban DARTUS, Nino HAMEL, Robin MENEUST, Jérémy SAELEN, Mathis TEMPO
 copyright: ""
 
@@ -21,7 +21,7 @@ markdown_extensions:
       enabled: false
 
 nav:
-  - LinkedIn Few-Shot Learning: index.md
+  - Few-Shot Learning: index.md
   - Tests functions: tests.md
   - Training and evaluation tasks: train_eval_task.md
   - Utility functions: utility.md
